@@ -1,0 +1,113 @@
+<app-navbar></app-navbar>
+
+<div class="catalogue-page">
+  <!-- Header identical style to catalogue -->
+  <header class="catalogue-header">
+    <div class="catalogue-title">
+      <h1>Brands</h1>
+      <p class="catalogue-subtitle">
+        Browse all available car brands and their models.
+      </p>
+    </div>
+  </header>
+
+  <!-- Main layout identical grid as catalogue -->
+  <main class="catalogue-content">
+    <!-- Left card: brands table -->
+    <section class="catalogue-card">
+      <div class="catalogue-card-header">
+        <h2 class="catalogue-card-title">Brands list</h2>
+      </div>
+
+      <div class="catalogue-card-body">
+        <!-- Loading / error states styled like catalogue -->
+        <div *ngIf="loading()" class="catalogue-status catalogue-status-loading">
+          Loading brands...
+        </div>
+
+        <div
+          *ngIf="!loading() && error()"
+          class="catalogue-status catalogue-status-error"
+        >
+          {{ error() }}
+        </div>
+
+        <div *ngIf="!loading() && !error()">
+          <table class="catalogue-table" *ngIf="brands().length; else noBrands">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Brand</th>
+                <th class="catalogue-table-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let brand of brands()">
+                <td>{{ brand.id }}</td>
+                <td>{{ brand.name }}</td>
+                <td class="catalogue-table-actions">
+                  <button
+                    type="button"
+                    class="catalogue-btn catalogue-btn-secondary"
+                    (click)="loadModelsForBrand(brand)"
+                  >
+                    View models
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <ng-template #noBrands>
+            <p class="catalogue-status catalogue-status-empty">
+              No brands available.
+            </p>
+          </ng-template>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right card: models for selected brand, same card style -->
+    <section
+      class="catalogue-card catalogue-card-side"
+      *ngIf="selectedBrand()"
+    >
+      <div class="catalogue-card-header">
+        <h2 class="catalogue-card-title">
+          Models for {{ selectedBrand()?.name }}
+        </h2>
+      </div>
+
+      <div class="catalogue-card-body">
+        <div *ngIf="loadingModels()" class="catalogue-status catalogue-status-loading">
+          Loading models...
+        </div>
+
+        <div
+          *ngIf="!loadingModels() && modelsError()"
+          class="catalogue-status catalogue-status-error"
+        >
+          {{ modelsError() }}
+        </div>
+
+        <div *ngIf="!loadingModels() && !modelsError()">
+          <ul
+            class="catalogue-list"
+            *ngIf="models().length; else noModels"
+          >
+            <li *ngFor="let model of models()" class="catalogue-list-item">
+              <span class="catalogue-list-primary">{{ model.name }}</span>
+              <span class="catalogue-list-secondary">{{ model.id }}</span>
+            </li>
+          </ul>
+
+          <ng-template #noModels>
+            <p class="catalogue-status catalogue-status-empty">
+              No models available for this brand.
+            </p>
+          </ng-template>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
