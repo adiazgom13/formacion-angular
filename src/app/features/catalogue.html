@@ -12,16 +12,17 @@
           Explora los coches disponibles y gestiona cada modelo.
         </p>
       </div>
-
-      <div class="catalogue-summary" *ngIf="!loading() && !error()">
-        <span class="summary-item">
-          Total coches: <strong>{{ totalItems() }}</strong>
-        </span>
-        <span class="summary-item">
-          Página <strong>{{ currentPage() }}</strong> de
-          <strong>{{ totalPages() }}</strong>
-        </span>
-      </div>
+      @if (!loading() && !error()){
+        <div class="catalogue-summary">
+          <span class="summary-item">
+            Total coches: <strong>{{ totalItems() }}</strong>
+          </span>
+          <span class="summary-item">
+            Página <strong>{{ currentPage() }}</strong> de
+            <strong>{{ totalPages() }}</strong>
+          </span>
+        </div>
+      }
     </header>
 
     <section class="catalogue-card">
@@ -40,98 +41,106 @@
       </div>
 
       <div class="catalogue-card-body">
-        <div *ngIf="loading()" class="catalogue-status">
-          Cargando coches...
-        </div>
+        @if (loading()){
+          <div class="catalogue-status">
+            Cargando coches...
+          </div>
+        }
+        @if (error()){
+          <div class="catalogue-status catalogue-status--error">
+            {{ error() }}
+          </div>
+        }
+        @if (!loading() && !error()){
+          <div>
+            @if (cars().length > 0){
+              <table class="cars-table">
+                <thead>
+                  <tr>
+                    <th class="col-brand">Marca</th>
+                    <th class="col-model">Modelo</th>
+                    <th class="col-total">Total</th>
+                    <th class="col-actions">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (car of cars(); track car.id) {
+                    <tr>
+                      <td class="col-brand">
+                        <div class="cell-main">
+                          <span class="cell-title">{{ car.brand.name }}</span>
+                        </div>
+                      </td>
 
-        <div *ngIf="error()" class="catalogue-status catalogue-status--error">
-          {{ error() }}
-        </div>
+                      <td class="col-model">
+                        <div class="cell-main">
+                          <span class="cell-title">{{ car.model.name }}</span>
+                        </div>
+                      </td>
 
-        <div *ngIf="!loading() && !error()">
-          <table class="cars-table" *ngIf="cars().length > 0">
-            <thead>
-              <tr>
-                <th class="col-brand">Marca</th>
-                <th class="col-model">Modelo</th>
-                <th class="col-total">Total</th>
-                <th class="col-actions">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let car of cars()">
-                <td class="col-brand">
-                  <div class="cell-main">
-                    <span class="cell-title">{{ car.brand.name }}</span>
-                  </div>
-                </td>
+                      <td class="col-total">
+                        <span class="badge-total">{{ car.total }}</span>
+                      </td>
 
-                <td class="col-model">
-                  <div class="cell-main">
-                    <span class="cell-title">{{ car.model.name }}</span>
-                  </div>
-                </td>
-
-                <td class="col-total">
-                  <span class="badge-total">{{ car.total }}</span>
-                </td>
-
-                <td class="col-actions">
-                  <div class="actions-group">
-                    <button
-                      type="button"
-                      class="btn btn-secondary"
-                      (click)="goToCar(car.id)"
-                    >
-                      Ver
-                    </button>
-                    
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <p *ngIf="cars().length === 0" class="catalogue-status">
-            No hay coches para mostrar.
-          </p>
-        </div>
+                      <td class="col-actions">
+                        <div class="actions-group">
+                          <button
+                            type="button"
+                            class="btn btn-secondary"
+                            (click)="goToCar(car.id)"
+                          >
+                            Ver
+                          </button>
+                          
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+            @if (cars().length === 0){
+              <p class="catalogue-status">
+                No hay coches para mostrar.
+              </p>
+            }
+          </div>
+        }
       </div>
 
-      <footer
-        class="catalogue-card-footer"
-        *ngIf="!loading() && !error() && totalPages() > 1"
-      >
-        <div class="pagination-info">
-          Mostrando
-          <strong>{{ cars().length }}</strong> de
-          <strong>{{ totalItems() }}</strong> coches
-        </div>
+      @if (!loading() && !error() && totalPages() > 1){
+        <footer class="catalogue-card-footer">
+          <div class="pagination-info">
+            Mostrando
+            <strong>{{ cars().length }}</strong> de
+            <strong>{{ totalItems() }}</strong> coches
+          </div>
 
-        <div class="pagination-controls">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            (click)="prevPage()"
-            [disabled]="!hasPreviousPage()"
-          >
-            Anterior
-          </button>
+          <div class="pagination-controls">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="prevPage()"
+              [disabled]="!hasPreviousPage()"
+            >
+              Anterior
+            </button>
 
-          <span class="pagination-page">
-            Página {{ currentPage() }} / {{ totalPages() }}
-          </span>
+            <span class="pagination-page">
+              Página {{ currentPage() }} / {{ totalPages() }}
+            </span>
 
-          <button
-            type="button"
-            class="btn btn-secondary"
-            (click)="nextPage()"
-            [disabled]="!hasNextPage()"
-          >
-            Siguiente
-          </button>
-        </div>
-      </footer>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="nextPage()"
+              [disabled]="!hasNextPage()"
+            >
+              Siguiente
+            </button>
+          </div>
+        </footer>
+      }
     </section>
   </div>
 </div>

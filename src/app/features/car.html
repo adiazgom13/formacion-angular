@@ -1,123 +1,140 @@
 <app-navbar></app-navbar>
 
-<div class="car-page" *ngIf="car() as c">
-  <div class="car-container">
-    <header class="car-header">
-      <div class="car-header-main">
-        <div class="car-title-group">
-          <h1>{{ c.brand.name }} {{ c.model.name }}</h1>
-          <p class="car-subtitle" *ngIf="detail() as d">
-            Matrícula <strong>{{ d.licensePlate }}</strong> · Año
-            <strong>{{ d.manufactureYear }}</strong>
-          </p>
-        </div>
-      </div>
-
-      <div class="car-header-badge" *ngIf="detail() as d">
-        <span
-          class="availability-badge"
-          [class.availability-badge--unavailable]="!d.availability"
-        >
-          {{ d.availability ? 'Disponible' : 'No disponible' }}
-        </span>
-      </div>
-    </header>
-
-    <section class="car-layout">
-      <!-- Columna imagen -->
-      <div class="car-image-card" *ngIf="detail() as d">
-        <div class="car-image-wrapper">
-          <img
-            [src]="d.imageUrl"
-            [alt]="c.brand.name + ' ' + c.model.name"
-          />
-        </div>
-        <div class="car-image-footer">
-          <span class="car-id-label">ID vehículo:</span>
-          <span class="car-id-value">{{ c.id }}</span>
-        </div>
-      </div>
-
-      <!-- Columna detalles -->
-      <div class="car-details-card">
-        <div class="car-price-row" *ngIf="detail() as d">
-          <div class="car-price-main">
-            <span class="price-label">Precio</span>
-            <div class="price-value">
-              {{ d.price | number : '1.0-0' }}
-              <span class="price-currency">{{ d.currency }}</span>
-            </div>
-          </div>
-
-          <div class="car-quick-info">
-            <div class="quick-info-item">
-              <span class="quick-info-label">Kilometraje</span>
-              <span class="quick-info-value">
-                {{ d.mileage | number : '1.0-0' }} km
-              </span>
-            </div>
-            <div class="quick-info-item">
-              <span class="quick-info-label">Color</span>
-              <span class="quick-info-value">
-                {{ d.color }}
-              </span>
-            </div>
+@if (car(); as c){
+  <div class="car-page">
+    <div class="car-container">
+      <header class="car-header">
+        <div class="car-header-main">
+          <div class="car-title-group">
+            <h1>{{ c.brand.name }} {{ c.model.name }}</h1>
+            @if (detail(); as d){
+              <p class="car-subtitle">
+                Matrícula <strong>{{ d.licensePlate }}</strong> · Año
+                <strong>{{ d.manufactureYear }}</strong>
+              </p>
+            }
           </div>
         </div>
-
-        <div class="car-meta-grid">
-          <div class="meta-item">
-            <span class="meta-label">Marca</span>
-            <span class="meta-value">{{ c.brand.name }}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Modelo</span>
-            <span class="meta-value">{{ c.model.name }}</span>
-          </div>
-          <div class="meta-item" *ngIf="detail() as d">
-            <span class="meta-label">Fecha de matriculación</span>
-            <span class="meta-value">
-              {{ d.registrationDate | date : 'dd/MM/yyyy' }}
+        @if (detail(); as d){
+          <div class="car-header-badge">
+            <span
+              class="availability-badge"
+              [class.availability-badge--unavailable]="!d.availability"
+            >
+              {{ d.availability ? 'Disponible' : 'No disponible' }}
             </span>
           </div>
-          <div class="meta-item">
-            <span class="meta-label">Total unidades</span>
-            <span class="meta-value">{{ c.total }}</span>
+      }
+      </header>
+
+      <section class="car-layout">
+        <!-- Columna imagen -->
+         @if (detail(); as d){
+          <div class="car-image-card">
+            <div class="car-image-wrapper">
+              <img
+                [src]="d.imageUrl"
+                [alt]="c.brand.name + ' ' + c.model.name"
+              />
+            </div>
+            <div class="car-image-footer">
+              <span class="car-id-label">ID vehículo:</span>
+              <span class="car-id-value">{{ c.id }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- Columna detalles -->
+        <div class="car-details-card">
+          @if (detail(); as d){
+            <div class="car-price-row">
+              <div class="car-price-main">
+                <span class="price-label">Precio</span>
+                <div class="price-value">
+                  {{ d.price | number : '1.0-0' }}
+                  <span class="price-currency">{{ d.currency }}</span>
+                </div>
+              </div>
+
+              <div class="car-quick-info">
+                <div class="quick-info-item">
+                  <span class="quick-info-label">Kilometraje</span>
+                  <span class="quick-info-value">
+                    {{ d.mileage | number : '1.0-0' }} km
+                  </span>
+                </div>
+                <div class="quick-info-item">
+                  <span class="quick-info-label">Color</span>
+                  <span class="quick-info-value">
+                    {{ d.color }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="car-meta-grid">
+            <div class="meta-item">
+              <span class="meta-label">Marca</span>
+              <span class="meta-value">{{ c.brand.name }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Modelo</span>
+              <span class="meta-value">{{ c.model.name }}</span>
+            </div>
+            @if (detail(); as d){
+              <div class="meta-item">
+                <span class="meta-label">Fecha de matriculación</span>
+                <span class="meta-value">
+                  {{ d.registrationDate | date : 'dd/MM/yyyy' }}
+                </span>
+              </div>
+            }
+            <div class="meta-item">
+              <span class="meta-label">Total unidades</span>
+              <span class="meta-value">{{ c.total }}</span>
+            </div>
+          </div>
+
+          @if (detail(); as d){
+            <div class="car-description-card">
+              <h2>Descripción</h2>
+              <p>
+                {{ d.description }}
+              </p>
+            </div>
+          }
+
+          <div class="car-actions">
+            <button type="button" class="btn btn-primary" (click)="reserve()">
+              Reservar
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              routerLink="/catalogue"
+            >
+              Volver al catálogo
+            </button>
+            <button type="button" class="btn btn-danger" (click)="delete()">
+              Eliminar
+            </button>
           </div>
         </div>
-
-        <div class="car-description-card" *ngIf="detail() as d">
-          <h2>Descripción</h2>
-          <p>
-            {{ d.description }}
-          </p>
-        </div>
-
-        <div class="car-actions">
-          <button type="button" class="btn btn-primary" (click)="reserve()">
-            Reservar
-          </button>
-          <button
-            type="button"
-            class="btn btn-secondary"
-            routerLink="/catalogue"
-          >
-            Ver más coches
-          </button>
-          <button type="button" class="btn btn-danger" (click)="delete()">
-            Eliminar
-          </button>
-        </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </div>
-</div>
+}
 
-<!-- Estados de carga/error -->
-<div class="car-page car-page--center" *ngIf="loading() && !error()">
-  <p class="car-status">Cargando vehículo...</p>
-</div>
+@if (loading() && !error()){
+  @if (loading()){}
+  <div class="car-page car-page--center">
+    <p class="car-status">Cargando vehículo...</p>
+  </div>
+}
 
-<div class="car-page car-page--center" *ngIf="error()">
-  <p class="car-status car-status--error">{{ error() }}</p>
-</div>
+@if (error()){
+  <div class="car-page car-page--center">
+    <p class="car-status car-status--error">{{ error() }}</p>
+  </div>
+}
