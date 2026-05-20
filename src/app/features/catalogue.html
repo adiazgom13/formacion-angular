@@ -27,19 +27,67 @@
 
     <section class="catalogue-card">
       <div class="catalogue-card-header">
-        <h2>Listado</h2>
+        
 
         <div class="catalogue-filters">
-          <!-- Espacio reservado por si luego añades filtros -->
-          <!--
-          <label>
-            Marca:
-            <select></select>
-          </label>
-          -->
-        </div>
+          <h3>Filtrar por </h3>
+            <label>
+              Marca:
+              <input
+                type="text"
+                #brandInput
+                [value]="uiBrandId() ?? ''"
+                (input)="uiBrandId.set(brandInput.value || undefined)"
+              />
+            </label>
+
+            <label>
+              Modelo:
+              <input
+                type="text"
+                #brandInput
+                [value]="uiModelId() ?? ''"
+                (input)="uiModelId.set(brandInput.value || undefined)"
+              />
+            </label>
+
+            <label>
+              Ordenar por:
+              <select
+                #sortBySelect
+                [value]="uiSortBy()"
+                (change)="uiSortBy.set(sortBySelect.value)"
+              >
+                <option value="brand">Marca</option>
+                <option value="model">Modelo</option>
+                <option value="total">Total</option>
+              </select>
+            </label>
+
+            <label>
+              En orden:
+              <select
+                #orderBySelect
+                [value]="uiSortOrder()"
+                (change)="uiSortOrder.set(
+                  orderBySelect.value === 'asc' || orderBySelect.value === 'desc'
+                    ? orderBySelect.value
+                    : undefined
+                )"
+              >
+                <option value="asc">Ascendente</option>
+                <option value="desc">Descendente</option>
+              </select>
+            </label>
+
+            <button type="button" class="btn btn-secondary" (click)="applyFilters()">Aplicar filtros</button>
+            <button type="button" class="btn btn-secondary" (click)="clearFilters()">Limpiar</button>
+                  </div>
       </div>
 
+      <div>
+      <h2>Listado</h2>
+      </div>
       <div class="catalogue-card-body">
         @if (loading()){
           <div class="catalogue-status">

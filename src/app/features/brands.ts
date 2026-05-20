@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BrandService } from '../core/services/brand.services';
 import { Brand, Model } from '../core/interfaces/cars.interface';
 import { NavbarComponent } from '../shared/navbar';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-brands',
@@ -15,6 +16,7 @@ import { NavbarComponent } from '../shared/navbar';
 export class BrandsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private brandService = inject(BrandService);
+  private router = inject(Router)
 
   brands = signal<Brand[]>([]);
   loading = signal(false);
@@ -62,6 +64,14 @@ export class BrandsComponent implements OnInit {
         this.loadingModels.set(false);
       },
     });
+  }
+
+  goToCar(carId: string): void {
+    if (!carId) {
+      console.warn('No car id provided');
+      return;
+    }
+    this.router.navigate(['/car', carId]);
   }
 }
   

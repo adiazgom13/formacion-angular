@@ -23,8 +23,13 @@ export class CatalogueComponent implements OnInit {
   // filtros / ordenación que sí controlas desde el cliente
   brandId = signal<string | undefined>(undefined);
   modelId = signal<string | undefined>(undefined);
-  sortBy = signal('brand');
-  sortOrder = signal<'asc' | 'desc'>('asc');
+  sortBy = signal<string>('brand');
+  sortOrder = signal<'asc' | 'desc' | undefined>('asc');
+
+  uiBrandId = signal<string | undefined>(undefined);
+  uiModelId = signal<string | undefined>(undefined);
+  uiSortBy = signal<string>('brand');
+  uiSortOrder = signal<'asc' | 'desc' | undefined>('asc');
 
   loading = signal(false);
   error = signal<string | null>(null);
@@ -38,7 +43,30 @@ export class CatalogueComponent implements OnInit {
   hasPreviousPage = computed(() => this.meta()?.hasPreviousPage ?? false);
 
   ngOnInit(): void {
-    this.loadCars(2);
+    this.uiBrandId.set(this.brandId());
+    this.uiModelId.set(this.modelId());
+    this.uiSortBy.set(this.sortBy());
+    this.uiSortOrder.set(this.sortOrder());
+    this.loadCars(1);
+  }
+
+  clearFilters(): void {
+  this.uiBrandId.set(undefined);
+  this.uiModelId.set(undefined);
+  this.uiSortBy.set('brand');
+  this.uiSortOrder.set('asc');
+
+  this.applyFilters();
+}
+
+  applyFilters(): void {
+    this.brandId.set(this.uiBrandId());
+    this.modelId.set(this.uiModelId());
+    this.sortBy.set(this.uiSortBy());
+    this.sortOrder.set(this.uiSortOrder());
+
+    // when filters change, reset to first page
+    this.loadCars(1);
   }
 
  loadCars(page: number): void {
