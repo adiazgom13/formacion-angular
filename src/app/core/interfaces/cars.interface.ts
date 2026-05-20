@@ -44,3 +44,11 @@ export interface CarsResponse {
   items: Car[];
   meta: CarsMeta;
 }
+
+export interface CarDocument
+{
+  title: string;
+  documentType: string;
+  description: string;
+  file: File;
+}
