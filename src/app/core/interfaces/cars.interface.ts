@@ -8,7 +8,7 @@ export interface Model {
   name: string;
 }
 
-export interface CarDetail{
+export interface CarDetails{
   availability: boolean;
   currency: string;
   licensePlate: string;
@@ -18,7 +18,7 @@ export interface CarDetail{
   registrationDate: string;
   color: string;
   description: string;
-  imageUrl: string;
+  imageUrl?: string;
 }
 
 export interface Car {
@@ -27,7 +27,7 @@ export interface Car {
   model: Model;
   total: number;
   imageUrl?: string;
-  carDetails?: CarDetail[];
+  carDetails?: CarDetails[];
 }
 
 export interface CarsMeta {

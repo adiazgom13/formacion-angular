@@ -5,6 +5,7 @@ import {
   Car,
   CarDocument,
   CarsResponse,
+  CarDetails,
 } from '../interfaces/cars.interface';
 
 @Injectable({
@@ -49,17 +50,7 @@ export class CarsService {
   postCar(payload: {
     brandId: string;
     modelId: string;
-    carDetails: Array<{
-      registrationDate: string; // or Date if your backend accepts it
-      mileage: number;
-      price: number;
-      manufactureYear: number;
-      currency: string;
-      availability: boolean;
-      color: string;
-      description: string;
-      licensePlate: string;
-    }>;
+    carDetails: CarDetails[];
   }): Observable<Car> {
     return this.http.post<Car>(this.baseUrl, payload);
   }
@@ -107,23 +98,13 @@ export class CarsService {
     payload: {
       brandId: string;
       modelId: string;
-      carDetails: Array<{
-        registrationDate: string;
-        mileage: number;
-        price: number;
-        manufactureYear: number;
-        currency: string;
-        availability: boolean;
-        color: string;
-        description: string;
-        licensePlate: string;
-      }>;
+      carDetails: CarDetails;
     }
   ): Observable<Car> {
     return this.http.put<Car>(`${this.baseUrl}/${id}`, payload);
   }
 
-  DeteCar(id: string): Observable<Car> {
+  DeleteCar(id: string): Observable<Car> {
     return this.http.delete<Car>(`${this.baseUrl}/${id}`);
   }
 
@@ -153,4 +134,3 @@ export class CarsService {
   }
 
 }
-

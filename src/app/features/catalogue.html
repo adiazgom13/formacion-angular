@@ -3,6 +3,186 @@
   
 </header>
 
+@if (createModalOpen()) {
+
+
+  <div class="modal-backdrop">
+    <div class="modal">
+      
+      <h2>Añadir coche</h2>
+      
+      @if (createError()) {
+        <p class="modal-error">{{ createError() }}</p>
+      }
+      
+      <form>
+        <label>Marca *</label>
+        <div class="modal-field">
+          <select
+            #brandSelect
+            [value]="newCarBrandId()"
+            (change)="onNewCarBrandChange(brandSelect.value)"
+          >
+            <option value=""></option>
+            @for (brand of brands(); track brand.id) {
+              <option [value]="brand.id">{{ brand.name }}</option>
+            }
+          </select>
+        </div>
+
+        <label>Modelo *</label>
+        <div class="modal-field">
+            <select
+              #modelSelect
+              [value]="newCarModelId()"
+              (change)="newCarModelId.set(modelSelect.value)"
+              [disabled]="!newCarBrandId() || models().length === 0"
+            >
+              <option value=""></option>
+              @for (model of models(); track model.id) {
+                <option [value]="model.id">{{ model.name }}</option>
+              }
+            </select>
+        </div>
+
+        <label>Fecha matriculación</label>
+        <div class="modal-field">
+          
+          <input
+            type="date"
+            #registrationInput
+            [value]="newCarRegistrationDate()"
+            (input)="newCarRegistrationDate.set(registrationInput.value)"
+          />
+        </div>
+
+        <label>Kilometraje *</label>
+        <div class="modal-field">
+          
+          <input
+            type="number"
+            #mileageInput
+            [value]="newCarMileage() ?? ''"
+            (input)="
+              newCarMileage.set(
+                mileageInput.value ? +mileageInput.value : null
+              )
+            "
+          />
+        </div>
+
+        <label>Precio *</label>
+        <div class="modal-field">
+          
+          <input
+            type="number"
+            #priceInput
+            [value]="newCarPrice() ?? ''"
+            (input)="
+              newCarPrice.set(
+                priceInput.value ? +priceInput.value : null
+              )
+            "
+          />
+        </div>
+
+        <label>Año fabricación *</label>
+        <div class="modal-field">
+          
+          <input
+            type="number"
+            min="1900"
+            #yearInput
+            [value]="newCarManufactureYear() ?? ''"
+            (input)="
+              newCarManufactureYear.set(
+                yearInput.value ? +yearInput.value : null
+              )
+            "
+          />
+        </div>
+
+        <label>Moneda</label>
+        <div class="modal-field">
+          
+          <input
+            type="text"
+            #currencyInput
+            [value]="newCarCurrency()"
+            (input)="newCarCurrency.set(currencyInput.value)"
+          />
+        </div>
+
+        <!-- Disponible -->
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              #availabilityInput
+              [checked]="newCarAvailability()"
+              (change)="newCarAvailability.set(availabilityInput.checked)"
+            />
+            Disponible
+          </label>
+        </div>
+
+        
+        <label>Color</label>
+        <div class="modal-field">
+          
+          <input
+            type="text"
+            #colorInput
+            [value]="newCarColor()"
+            (input)="newCarColor.set(colorInput.value)"
+          />
+        </div>
+
+        
+        <label>Descripción</label>
+        <div class="modal-field">
+          
+          <textarea
+            #descriptionInput
+            [value]="newCarDescription()"
+            (input)="newCarDescription.set(descriptionInput.value)"
+          ></textarea>
+        </div>
+
+        
+        <label>Matrícula</label>
+        <div class="modal-field">
+          
+          <input
+            type="text"
+            #licenseInput
+            [value]="newCarLicensePlate()"
+            (input)="newCarLicensePlate.set(licenseInput.value)"
+          />
+        </div>
+      
+        <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="closeCreateModal()"
+        [disabled]="createLoading()"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="createCar()"
+          [disabled]="createLoading()"
+        >
+          Crear
+        </button>
+    </form>
+    </div>
+  </div>
+}
+
 <div class="catalogue-page">
   <div class="catalogue-container">
     <header class="catalogue-header">
@@ -27,10 +207,17 @@
 
     <section class="catalogue-card">
       <div class="catalogue-card-header">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="openCreateModal()"
+        >
+          Añadir coche
+        </button>
         
 
         <div class="catalogue-filters">
-          <h3>Filtrar por </h3>
+          <h2>Filtros</h2>
             <label>
               Marca:
               <input
@@ -84,7 +271,7 @@
             <button type="button" class="btn btn-secondary" (click)="clearFilters()">Limpiar</button>
                   </div>
       </div>
-
+      
       <div>
       <h2>Listado</h2>
       </div>
@@ -190,7 +377,5 @@
         </footer>
       }
     </section>
-  </div>
-</div>
 
-<router-outlet />
+

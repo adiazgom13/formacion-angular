@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CarsService } from '../core/services/car.services';
-import { Car, CarDetail} from '../core/interfaces/cars.interface';
+import { Car, CarDetails} from '../core/interfaces/cars.interface';
 import { NavbarComponent } from '../shared/navbar';
 
 @Component({
@@ -21,7 +21,7 @@ export class CarComponent implements OnInit {
   error = signal<string | null>(null);
 
   // convenience: first element of carDetails (if present)
-  detail = computed<CarDetail | null>(() => {
+  detail = computed<CarDetails | null>(() => {
     const c = this.car();
     if (!c || !c.carDetails || c.carDetails.length === 0) {
       return null;
@@ -58,6 +58,7 @@ export class CarComponent implements OnInit {
   // actions (no-op for now; you can wire them later)
   reserve(): void {
     console.log('reserve', this.car());
+    
   }
 
   delete(): void {
