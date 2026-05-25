@@ -9,7 +9,11 @@
   <div class="modal-backdrop">
     <div class="modal">
       
-      <h2>Añadir coche</h2>
+      @if (modalMode() === 'create') {
+        <h2>Añadir coche</h2>
+      } @else {
+        <h2>Editar coche</h2>
+      }
       
       @if (createError()) {
         <p class="modal-error">{{ createError() }}</p>
@@ -173,10 +177,10 @@
         <button
           type="button"
           class="btn btn-secondary"
-          (click)="createCar()"
+          (click)="submitCar()"
           [disabled]="createLoading()"
         >
-          Crear
+          @if (modalMode() === 'create') { Añadir } @else { Guardar cambios }
         </button>
     </form>
     </div>
@@ -325,6 +329,14 @@
                             (click)="goToCar(car.id)"
                           >
                             Ver
+                          </button>
+
+                          <button
+                            type="button"
+                            class="btn btn-secondary"
+                            (click)="openEditModal(car)"
+                          >
+                            Editar
                           </button>
                           
                         </div>

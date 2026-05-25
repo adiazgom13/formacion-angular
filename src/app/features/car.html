@@ -1,5 +1,158 @@
 <app-navbar></app-navbar>
 
+@if (isEditModalOpen()) {
+
+
+  <div class="modal-backdrop">
+    <div class="modal">
+      
+      <h2>Editar coche</h2>
+      
+      @if (editError()) {
+        <p class="modal-error">{{ editError() }}</p>
+      }
+      
+      <form>
+        <label>Fecha matriculación</label>
+        <div class="modal-field">
+          
+          <input
+            type="date"
+            #registrationInput
+            [value]="newCarRegistrationDate()"
+            (input)="newCarRegistrationDate.set(registrationInput.value)"
+          />
+        </div>
+
+        <label>Kilometraje *</label>
+        <div class="modal-field">
+          
+          <input
+            type="number"
+            #mileageInput
+            [value]="newCarMileage() ?? ''"
+            (input)="
+              newCarMileage.set(
+                mileageInput.value ? +mileageInput.value : null
+              )
+            "
+          />
+        </div>
+
+        <label>Precio *</label>
+        <div class="modal-field">
+          
+          <input
+            type="number"
+            #priceInput
+            [value]="newCarPrice() ?? ''"
+            (input)="
+              newCarPrice.set(
+                priceInput.value ? +priceInput.value : null
+              )
+            "
+          />
+        </div>
+
+        <label>Año fabricación *</label>
+        <div class="modal-field">
+          
+          <input
+            type="number"
+            min="1900"
+            #yearInput
+            [value]="newCarManufactureYear() ?? ''"
+            (input)="
+              newCarManufactureYear.set(
+                yearInput.value ? +yearInput.value : null
+              )
+            "
+          />
+        </div>
+
+        <label>Moneda</label>
+        <div class="modal-field">
+          
+          <input
+            type="text"
+            #currencyInput
+            [value]="newCarCurrency()"
+            (input)="newCarCurrency.set(currencyInput.value)"
+          />
+        </div>
+
+        <!-- Disponible -->
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              #availabilityInput
+              [checked]="newCarAvailability()"
+              (change)="newCarAvailability.set(availabilityInput.checked)"
+            />
+            Disponible
+          </label>
+        </div>
+
+        
+        <label>Color</label>
+        <div class="modal-field">
+          
+          <input
+            type="text"
+            #colorInput
+            [value]="newCarColor()"
+            (input)="newCarColor.set(colorInput.value)"
+          />
+        </div>
+
+        
+        <label>Descripción</label>
+        <div class="modal-field">
+          
+          <textarea
+            #descriptionInput
+            [value]="newCarDescription()"
+            (input)="newCarDescription.set(descriptionInput.value)"
+          ></textarea>
+        </div>
+
+        
+        <label>Matrícula</label>
+        <div class="modal-field">
+          
+          <input
+            type="text"
+            #licenseInput
+            [value]="newCarLicensePlate()"
+            (input)="newCarLicensePlate.set(licenseInput.value)"
+          />
+        </div>
+      
+        
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="editCar()"
+          [disabled]="editLoading()"
+        >
+          Guardar
+        </button>
+
+        <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="closeEditModal()"
+        [disabled]="editLoading()"
+        >
+          Cancelar
+        </button>
+    </form>
+    </div>
+  </div>
+}
+
 @if (car(); as c){
   <div class="car-page">
     <div class="car-container">
@@ -106,8 +259,17 @@
           }
 
           <div class="car-actions">
-            <button type="button" class="btn btn-primary" (click)="reserve()">
-              Reservar
+
+            
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="openEditModal()"
+            >
+              Editar
+            </button>
+            <button type="button" class="btn btn-danger" (click)="delete()">
+              Eliminar
             </button>
             <button
               type="button"
@@ -115,9 +277,6 @@
               routerLink="/catalogue"
             >
               Volver al catálogo
-            </button>
-            <button type="button" class="btn btn-danger" (click)="delete()">
-              Eliminar
             </button>
           </div>
         </div>

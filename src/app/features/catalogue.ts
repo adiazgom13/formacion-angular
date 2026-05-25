@@ -60,6 +60,9 @@ export class CatalogueComponent implements OnInit {
   newCarDescription = signal<string>('');
   newCarLicensePlate = signal<string>('');
 
+  modalMode = signal<'create' | 'edit'>('create');
+  editingCarId = signal<string | null>(null);
+
   
   ngOnInit(): void {
     this.uiBrandId.set(this.brandId());
@@ -159,6 +162,9 @@ export class CatalogueComponent implements OnInit {
   }
 
   openCreateModal(): void {
+
+    this.modalMode.set('create');
+    this.editingCarId.set(null);
     this.newCarBrandId.set('');
     this.newCarModelId.set('');
     this.newCarRegistrationDate.set('');
@@ -176,8 +182,49 @@ export class CatalogueComponent implements OnInit {
 
     this.createModalOpen.set(true);
   }
+
+    openEditModal(car: Car): void {
+
+    this.modalMode.set('edit');
+    this.editingCarId.set(car.id);
+
+
+    const details = car.carDetails?.[0];
+
+    if (details) {
+      this.newCarAvailability.set(details.availability);
+      this.newCarCurrency.set(details.currency ?? 'EUR');
+      this.newCarLicensePlate.set(details.licensePlate ?? '');
+      this.newCarManufactureYear.set(details.manufactureYear ?? null);
+      this.newCarMileage.set(details.mileage ?? null);
+      this.newCarPrice.set(details.price ?? null);
+      this.newCarRegistrationDate.set(details.registrationDate ? details.registrationDate.slice(0, 10) : '');
+      this.newCarColor.set(details.color ?? '');
+      this.newCarDescription.set(details.description ?? '');
+    } else {
+      // si no hay detalles, dejar valores por defecto
+      this.newCarAvailability.set(true);
+      this.newCarCurrency.set('EUR');
+      this.newCarLicensePlate.set('');
+      this.newCarManufactureYear.set(null);
+      this.newCarMileage.set(null);
+      this.newCarPrice.set(null);
+      this.newCarRegistrationDate.set('');
+      this.newCarColor.set('');
+      this.newCarDescription.set('');
+    }
+
+    this.createError.set(null);
+    this.createLoading.set(false);
+    console.log('edit car id:', car.id);
+    this.createModalOpen.set(true);
+  }
   closeCreateModal(): void {
     this.createModalOpen.set(false);
+  }
+
+  editCar(carId: string): void {
+    console.log('edit car id:', carId);
   }
 
 
@@ -219,7 +266,61 @@ export class CatalogueComponent implements OnInit {
       },
     });
   }
+  updateCar(): void {
+    const id = this.editingCarId();
+    if (!id) {
+      console.warn('No car id provided for update');
+      return;
+    }
+
+    this.createLoading.set(true);
+    this.createError.set(null);
+
+    const registrationDate = new Date(this.newCarRegistrationDate()).toISOString();
+
+    const payload = {
+      brandId: this.newCarBrandId(),
+      modelId: this.newCarModelId(),
+      carDetails: [
+        {
+          availability: this.newCarAvailability(),
+          currency: this.newCarCurrency(),
+          licensePlate: this.newCarLicensePlate(),
+          manufactureYear: this.newCarManufactureYear() ?? 0,
+          mileage: this.newCarMileage() ?? 0,
+          price: this.newCarPrice() ?? 0,
+          registrationDate,
+          color: this.newCarColor(),
+          description: this.newCarDescription(),
+        },
+      ],
+    };
+
+    this.carsService.updateCar(id, payload).subscribe({
+      next: () => {
+        this.createLoading.set(false);
+        this.closeCreateModal();
+        // recargar lista (puede ser currentPage o 1)
+        this.loadCars(this.currentPage());
+      },
+      error: (err) => {
+        console.error(err);
+        this.createLoading.set(false);
+        this.createError.set('Error actualizando el coche');
+      },
+    });
+  }
   
+  submitCar(): void {
+    if (this.modalMode() === 'create') {
+      this.createCar();
+      return;
+    }
+    else{
+      console.log('edit car id:', this.editingCarId());
+      this.updateCar()
+    }
+  }
 
   goToCar(carId: string): void {
     if (!carId) {

@@ -98,7 +98,7 @@ export class CarsService {
     payload: {
       brandId: string;
       modelId: string;
-      carDetails: CarDetails;
+      carDetails: CarDetails[];
     }
   ): Observable<Car> {
     return this.http.put<Car>(`${this.baseUrl}/${id}`, payload);
