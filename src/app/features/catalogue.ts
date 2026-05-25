@@ -5,11 +5,12 @@ import { CarsService } from '../core/services/car.services';
 import { Car, Brand,Model, CarDetails, CarsResponse, CarsMeta } from '../core/interfaces/cars.interface';
 import { Router } from '@angular/router';
 import { BrandService } from '../core/services/brand.services';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-catalogue',
   standalone: true,
-  imports: [CommonModule, NavbarComponent],
+  imports: [CommonModule, NavbarComponent, FormsModule],
   templateUrl: './catalogue.html',
   styleUrls: ['./catalogue.css'],
 })
@@ -19,6 +20,7 @@ export class CatalogueComponent implements OnInit {
   private router = inject(Router)
 
   cars = signal<Car[]>([]);
+  car = signal<Car | null>(null);
   meta = signal<CarsMeta | null>(null);
   brands = signal<Brand[]>([]);
   models = signal<Model[]>([]);
@@ -59,6 +61,14 @@ export class CatalogueComponent implements OnInit {
   newCarColor = signal<string>('');
   newCarDescription = signal<string>('');
   newCarLicensePlate = signal<string>('');
+
+  detail = computed<CarDetails | null>(() => {
+    const c = this.car();
+    if (!c || !c.carDetails || c.carDetails.length === 0) {
+      return null;
+    }
+    return c.carDetails[0];
+  });
 
   modalMode = signal<'create' | 'edit'>('create');
   editingCarId = signal<string | null>(null);
@@ -187,46 +197,64 @@ export class CatalogueComponent implements OnInit {
 
     this.modalMode.set('edit');
     this.editingCarId.set(car.id);
-
-
-    const details = car.carDetails?.[0];
-
-    if (details) {
-      this.newCarAvailability.set(details.availability);
-      this.newCarCurrency.set(details.currency ?? 'EUR');
-      this.newCarLicensePlate.set(details.licensePlate ?? '');
-      this.newCarManufactureYear.set(details.manufactureYear ?? null);
-      this.newCarMileage.set(details.mileage ?? null);
-      this.newCarPrice.set(details.price ?? null);
-      this.newCarRegistrationDate.set(details.registrationDate ? details.registrationDate.slice(0, 10) : '');
-      this.newCarColor.set(details.color ?? '');
-      this.newCarDescription.set(details.description ?? '');
-    } else {
-      // si no hay detalles, dejar valores por defecto
-      this.newCarAvailability.set(true);
-      this.newCarCurrency.set('EUR');
-      this.newCarLicensePlate.set('');
-      this.newCarManufactureYear.set(null);
-      this.newCarMileage.set(null);
-      this.newCarPrice.set(null);
-      this.newCarRegistrationDate.set('');
-      this.newCarColor.set('');
-      this.newCarDescription.set('');
-    }
-
     this.createError.set(null);
-    this.createLoading.set(false);
-    console.log('edit car id:', car.id);
-    this.createModalOpen.set(true);
+    this.createLoading.set(true);
+
+    this.carsService.getCarById(car.id).subscribe({
+    next: (fullCar: Car) => {
+      // Brand / model
+      this.newCarBrandId.set(fullCar.brand?.id ?? '');
+      this.newCarModelId.set(fullCar.model?.id ?? '');
+
+      // Load models for brand, then set selected model
+      const brandId = fullCar.brand?.id;
+      if (brandId) {
+        this.brandService.getBrandModels(brandId).subscribe({
+          next: (models) => {
+            this.models.set(models);
+            this.newCarModelId.set(fullCar.model?.id ?? '');
+          },
+          error: (err) => {
+            console.error('Error loading models for brand', brandId, err);
+            this.models.set([]);
+          },
+        });
+      } else {
+        this.models.set([]);
+      }
+
+      const d = fullCar.carDetails?.[0];
+
+      this.newCarRegistrationDate.set(
+        d?.registrationDate ? new Date(d.registrationDate).toISOString().slice(0, 10) : ''
+      );
+      this.newCarMileage.set(d?.mileage ?? null);
+      this.newCarPrice.set(d?.price ?? null);
+      this.newCarManufactureYear.set(d?.manufactureYear ?? null);
+      this.newCarCurrency.set(d?.currency ?? 'EUR');
+
+      // IMPORTANT: do not use `?? true` here, otherwise undefined becomes true.
+      // Keep a default if you want, but it should be false (or leave as-is).
+      this.newCarAvailability.set(d?.availability ?? false);
+
+      this.newCarColor.set(d?.color ?? '');
+      this.newCarDescription.set(d?.description ?? '');
+      this.newCarLicensePlate.set(d?.licensePlate ?? '');
+
+      this.createLoading.set(false);
+      this.createModalOpen.set(true);
+    },
+    error: (err) => {
+      console.error('Error loading car by id', car.id, err);
+      this.createLoading.set(false);
+      this.createError.set('Error cargando el coche para editar');
+      this.createModalOpen.set(true);
+    },
+  });
   }
   closeCreateModal(): void {
     this.createModalOpen.set(false);
   }
-
-  editCar(carId: string): void {
-    console.log('edit car id:', carId);
-  }
-
 
   createCar(): void {
 

@@ -4,6 +4,15 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CarsService } from '../core/services/car.services';
 import { Car, CarDetails} from '../core/interfaces/cars.interface';
 import { NavbarComponent } from '../shared/navbar';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+
+
 
 @Component({
   selector: 'app-car',
@@ -35,7 +44,6 @@ export class CarComponent implements OnInit {
   newCarLicensePlate = signal<string>('');
 
 
-  // convenience: first element of carDetails (if present)
   detail = computed<CarDetails | null>(() => {
     const c = this.car();
     if (!c || !c.carDetails || c.carDetails.length === 0) {

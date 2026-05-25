@@ -23,28 +23,29 @@
         <label>Marca *</label>
         <div class="modal-field">
           <select
-            #brandSelect
-            [value]="newCarBrandId()"
-            (change)="onNewCarBrandChange(brandSelect.value)"
+            name="brandId"
+            [ngModel]="newCarBrandId()"
+            (ngModelChange)="onNewCarBrandChange($event)"
           >
-            <option value=""></option>
+            <option [ngValue]="''"></option>
             @for (brand of brands(); track brand.id) {
-              <option [value]="brand.id">{{ brand.name }}</option>
+              <option [ngValue]="brand.id">{{ brand.name }}</option>
             }
           </select>
+
         </div>
 
         <label>Modelo *</label>
         <div class="modal-field">
             <select
-              #modelSelect
-              [value]="newCarModelId()"
-              (change)="newCarModelId.set(modelSelect.value)"
+              name="modelId"
+              [ngModel]="newCarModelId()"
+              (ngModelChange)="newCarModelId.set($event)"
               [disabled]="!newCarBrandId() || models().length === 0"
             >
-              <option value=""></option>
+              <option [ngValue]="''"></option>
               @for (model of models(); track model.id) {
-                <option [value]="model.id">{{ model.name }}</option>
+                <option [ngValue]="model.id">{{ model.name }}</option>
               }
             </select>
         </div>
@@ -54,9 +55,9 @@
           
           <input
             type="date"
-            #registrationInput
-            [value]="newCarRegistrationDate()"
-            (input)="newCarRegistrationDate.set(registrationInput.value)"
+            name="registrationDate"
+            [ngModel]="newCarRegistrationDate()"
+            (ngModelChange)="newCarRegistrationDate.set($event)"
           />
         </div>
 
@@ -65,13 +66,9 @@
           
           <input
             type="number"
-            #mileageInput
-            [value]="newCarMileage() ?? ''"
-            (input)="
-              newCarMileage.set(
-                mileageInput.value ? +mileageInput.value : null
-              )
-            "
+            name="mileage"
+            [ngModel]="newCarMileage()"
+            (ngModelChange)="newCarMileage.set($event === '' || $event == null ? null : +$event)"
           />
         </div>
 
@@ -80,13 +77,9 @@
           
           <input
             type="number"
-            #priceInput
-            [value]="newCarPrice() ?? ''"
-            (input)="
-              newCarPrice.set(
-                priceInput.value ? +priceInput.value : null
-              )
-            "
+            name="price"
+            [ngModel]="newCarPrice()"
+            (ngModelChange)="newCarPrice.set($event === '' || $event == null ? null : +$event)"
           />
         </div>
 
@@ -96,13 +89,9 @@
           <input
             type="number"
             min="1900"
-            #yearInput
-            [value]="newCarManufactureYear() ?? ''"
-            (input)="
-              newCarManufactureYear.set(
-                yearInput.value ? +yearInput.value : null
-              )
-            "
+            name="manufactureYear"
+            [ngModel]="newCarManufactureYear()"
+            (ngModelChange)="newCarManufactureYear.set($event === '' || $event == null ? null : +$event)"
           />
         </div>
 
@@ -111,9 +100,9 @@
           
           <input
             type="text"
-            #currencyInput
-            [value]="newCarCurrency()"
-            (input)="newCarCurrency.set(currencyInput.value)"
+            name="currency"
+            [ngModel]="newCarCurrency()"
+            (ngModelChange)="newCarCurrency.set($event)"
           />
         </div>
 
@@ -121,11 +110,11 @@
         <div>
           <label>
             <input
-              type="checkbox"
-              #availabilityInput
-              [checked]="newCarAvailability()"
-              (change)="newCarAvailability.set(availabilityInput.checked)"
-            />
+            type="checkbox"
+            name="availability"
+            [ngModel]="newCarAvailability()"
+            (ngModelChange)="newCarAvailability.set(!!$event)"
+          />
             Disponible
           </label>
         </div>
@@ -136,9 +125,9 @@
           
           <input
             type="text"
-            #colorInput
-            [value]="newCarColor()"
-            (input)="newCarColor.set(colorInput.value)"
+            name="color"
+            [ngModel]="newCarColor()"
+            (ngModelChange)="newCarColor.set($event)"
           />
         </div>
 
@@ -147,9 +136,9 @@
         <div class="modal-field">
           
           <textarea
-            #descriptionInput
-            [value]="newCarDescription()"
-            (input)="newCarDescription.set(descriptionInput.value)"
+            name="description"
+            [ngModel]="newCarDescription()"
+            (ngModelChange)="newCarDescription.set($event)"
           ></textarea>
         </div>
 
@@ -159,21 +148,11 @@
           
           <input
             type="text"
-            #licenseInput
-            [value]="newCarLicensePlate()"
-            (input)="newCarLicensePlate.set(licenseInput.value)"
+            name="licensePlate"
+            [ngModel]="newCarLicensePlate()"
+            (ngModelChange)="newCarLicensePlate.set($event)"
           />
         </div>
-      
-        <button
-        type="button"
-        class="btn btn-secondary"
-        (click)="closeCreateModal()"
-        [disabled]="createLoading()"
-        >
-          Cancelar
-        </button>
-
         <button
           type="button"
           class="btn btn-secondary"
@@ -181,6 +160,15 @@
           [disabled]="createLoading()"
         >
           @if (modalMode() === 'create') { Añadir } @else { Guardar cambios }
+        </button>
+
+        <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="closeCreateModal()"
+        [disabled]="createLoading()"
+        >
+          Cancelar
         </button>
     </form>
     </div>
