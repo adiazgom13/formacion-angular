@@ -176,27 +176,6 @@
   gap: 16px;
 }
 
-.quick-info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.quick-info-label {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #9ca3af;
-}
-
-.quick-info-value {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #111827;
-}
-
-/* Grid meta */
-
 .car-meta-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -208,6 +187,7 @@
   flex-direction: column;
   gap: 2px;
 }
+
 
 .meta-label {
   font-size: 0.75rem;
@@ -221,8 +201,6 @@
   font-weight: 500;
   color: #111827;
 }
-
-/* Descripción */
 
 .car-description-card {
   border-radius: 8px;
@@ -252,8 +230,6 @@
   margin-top: 4px;
 }
 
-/* Botones (coherentes con catalogue) */
-
 .btn {
   display: inline-flex;
   align-items: center;
@@ -273,16 +249,6 @@
   opacity: 0.6;
   cursor: default;
   box-shadow: none;
-}
-
-.btn-primary {
-  background-color: #2563eb;
-  color: #ffffff;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #1d4ed8;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
 }
 
 .btn-secondary {
@@ -364,12 +330,6 @@
 .modal-field label {
   font-weight: 600;
   margin-bottom: 0.25rem;
-}
-
-.modal-field--inline {
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .modal-actions {
