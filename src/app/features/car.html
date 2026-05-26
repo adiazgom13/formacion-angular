@@ -204,8 +204,7 @@
               <div class="car-price-main">
                 <span class="price-label">Precio</span>
                 <div class="price-value">
-                  {{ d.price | number : '1.0-0' }}
-                  <span class="price-currency">{{ d.currency }}</span>
+                  {{ d.price | currency : d.currency  }}
                 </div>
               </div>
 
