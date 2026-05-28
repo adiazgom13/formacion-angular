@@ -258,8 +258,6 @@
           }
 
           <div class="car-actions">
-
-            
             <button
               type="button"
               class="btn btn-secondary"
@@ -267,17 +265,130 @@
             >
               Editar
             </button>
+
+<button
+              type="button"
+              class="btn btn-secondary"
+              (click)="openViewDocumentPanel()"
+              [disabled]="viewDocumentLoading()"
+            >
+              {{ viewDocumentLoading() ? 'Cargando...' : 'Ver Documento' }}
+            </button>
+
+            <button type="button" class="btn btn-secondary" (click)="openAttachDocumentPanel()">
+              Adjuntar documento
+            </button>
+
             <button type="button" class="btn btn-danger" (click)="delete()">
               Eliminar
             </button>
-            <button
-              type="button"
-              class="btn btn-secondary"
-              routerLink="/catalogue"
-            >
+
+            <button type="button" class="btn btn-secondary" routerLink="/catalogue">
               Volver al catálogo
             </button>
           </div>
+
+          <!--  PANEL VIEW DOCUMENT -->
+          @if (isViewDocumentPanelOpen()) {
+            <section class="car-document-panel">
+              <div class="car-document-panel__header">
+                <h2>Documento</h2>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  (click)="closeViewDocumentPanel()"
+                >
+                  Cerrar
+                </button>
+              </div>
+
+              @if (viewDocument(); as doc) {
+                <div class="car-document-panel__meta">
+                  <p><strong>Título:</strong> {{ doc.title }}</p>
+                  <p><strong>Tipo:</strong> {{ doc.documentType }}</p>
+                  <p><strong>Descripción:</strong> {{ doc.description }}</p>
+                </div>
+              }
+            </section>
+          }
+
+          <!-- PANEL UPLOAD DOCUMENT -->
+          @if (isAttachDocumentPanelOpen()) {
+            <section class="car-document-panel">
+              <div class="car-document-panel__header">
+                <h2>Adjuntar documento</h2>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  (click)="closeAttachDocumentPanel()"
+                >
+                  Cerrar
+                </button>
+              </div>
+
+              @if (attachValidationError()) {
+                <p class="car-document-panel__error">
+                  {{ attachValidationError() }}
+                </p>
+              }
+
+              @if (attachUploadError()) {
+                <p class="car-document-panel__error">
+                  {{ attachUploadError() }}
+                </p>
+              }
+
+              <div class="car-document-panel__grid">
+                <label>
+                  Título *
+                  <input
+                    type="text"
+                    #attachTitleInput
+                    [value]="attachTitle()"
+                    (input)="attachTitle.set(attachTitleInput.value)"
+                  />
+                </label>
+
+                <label>
+                  Tipo de documento *
+                  <input
+                    type="text"
+                    #attachTypeInput
+                    [value]="attachDocumentType()"
+                    (input)="attachDocumentType.set(attachTypeInput.value)"
+                  />
+                </label>
+
+                <label class="car-document-panel__full">
+                  Descripción
+                  <textarea
+                    #attachDescInput
+                    [value]="attachDescription()"
+                    (input)="attachDescription.set(attachDescInput.value)"
+                  ></textarea>
+                </label>
+
+                <label class="car-document-panel__full btn btn-secondary">
+                  Seleccionar archivo
+                  <input
+                    #fileInput
+                    type="file"
+                    accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg,application/pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg"
+                    (change)="onDocumentFileSelected(fileInput.files?.item(0) ?? null)"
+                  />
+                </label>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="uploadDocument()"
+                [disabled]="attachUploadLoading() || !attachFile()"
+              >
+                {{ attachUploadLoading() ? 'Subiendo...' : 'Subir documento' }}
+              </button>
+            </section>
+          }
         </div>
       </section>
     </div>

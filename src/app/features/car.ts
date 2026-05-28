@@ -1,16 +1,11 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CarsService } from '../core/services/car.services';
-import { Car, CarDetails} from '../core/interfaces/cars.interface';
+import { Car, CarDetails, CarDocument } from '../core/interfaces/cars.interface';
+import { ToastService } from '../core/services/toast.service';
 import { NavbarComponent } from '../shared/navbar';
-import {
-  FormArray,
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
 
 
 
@@ -24,6 +19,7 @@ import {
 export class CarComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private carsService = inject(CarsService);
+  private toastService = inject(ToastService);
 
   car = signal<Car | null>(null);
   loading = signal(false);
@@ -42,6 +38,41 @@ export class CarComponent implements OnInit {
   newCarColor = signal<string>('');
   newCarDescription = signal<string>('');
   newCarLicensePlate = signal<string>('');
+
+  isViewDocumentPanelOpen = signal(false);
+  viewDocumentLoading = signal(false);
+  viewDocument = signal<CarDocument | null>(null);
+
+  isAttachDocumentPanelOpen = signal(false);
+  attachTitle = signal('');
+  attachDocumentType = signal('');
+  attachDescription = signal('');
+  attachFile = signal<File | null>(null);
+
+  attachUploadLoading = signal(false);
+  attachUploadError = signal<string | null>(null);
+  attachValidationError = signal<string | null>(null);
+
+  carDocument = signal<CarDocument | null>(null);
+
+  docTitle = signal<string>('');
+  docDocumentType = signal<string>('');
+  docDescription = signal<string>('');
+  docFile = signal<File | null>(null);
+
+  docUploadLoading = signal(false);
+  docUploadError = signal<string | null>(null);
+  docValidationError = signal<string | null>(null);
+
+  readonly allowedMimeTypes = [
+    'application/pdf',
+    'text/plain',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'image/png',
+    'image/jpeg',
+  ];
+  readonly maxFileSizeBytes = 5 * 1024 * 1024; // 5MB error 413
 
 
   detail = computed<CarDetails | null>(() => {
@@ -107,6 +138,12 @@ export class CarComponent implements OnInit {
     this.editError.set(null);
 
     const carid=this.car()?.id ?? '';
+
+    if (!carid) {
+    this.editError.set('No se ha encontrado el coche a editar.');
+    return;
+  }
+
     const registrationDate =new Date(this.newCarRegistrationDate()).toISOString()
 
     const payload = {
@@ -148,5 +185,161 @@ export class CarComponent implements OnInit {
     console.log('delete', this.car());
   }
 
-  
+
+  resetViewPanel(): void {
+    this.viewDocumentLoading.set(false);
+    this.viewDocument.set(null);
+  }
+
+  closeViewDocumentPanel(): void {
+    this.isViewDocumentPanelOpen.set(false);
+    this.resetViewPanel();
+  }
+
+  openViewDocumentPanel(): void {
+    const carId = this.car()?.id ?? '';
+    if (!carId) {
+      this.toastService.show('No se pudo determinar el id del coche.', 'error');
+      return;
+    }
+    this.closeAttachDocumentPanel();
+    this.viewDocumentLoading.set(true);
+    this.carsService.getCarDocument(carId).subscribe({
+      next: (doc) => {
+        this.viewDocument.set(doc);
+        this.isViewDocumentPanelOpen.set(true);
+        this.viewDocumentLoading.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.viewDocumentLoading.set(false);
+
+        if (err?.status === 404) {
+          this.toastService.show('Este coche no tiene documento adjunto.', 'info');
+          // NO abrir panel
+          return;
+        }
+
+        console.error(err);
+        this.toastService.show('Error cargando documento.', 'error');
+        // NO abrir panel
+      },
+    });
+  }
+
+  resetAttachForm(): void {
+    this.attachTitle.set('');
+    this.attachDocumentType.set('');
+    this.attachDescription.set('');
+    this.attachFile.set(null);
+
+    this.attachUploadLoading.set(false);
+    this.attachUploadError.set(null);
+    this.attachValidationError.set(null);
+  }
+
+  closeAttachDocumentPanel(): void {
+    this.isAttachDocumentPanelOpen.set(false);
+    this.resetAttachForm();
+  }
+
+  openAttachDocumentPanel(): void {
+    const carId = this.car()?.id ?? '';
+    if (!carId) {
+      this.toastService.show('No se pudo determinar el id del coche.', 'error');
+      return;
+    }
+
+    // Aislamiento: cerrar + reset del panel de view
+    this.closeViewDocumentPanel();
+
+    this.resetAttachForm();
+    this.isAttachDocumentPanelOpen.set(true);
+  }
+
+ 
+
+  onDocumentFileSelected(file: File | null): void {
+    this.docValidationError.set(null);
+    this.docUploadError.set(null);
+
+    if (!file) {
+      this.docFile.set(null);
+      return;
+    }
+
+    if (file.size > this.maxFileSizeBytes) {
+      const maxMb = Math.round(this.maxFileSizeBytes / (1024 * 1024));
+      this.docValidationError.set(`El archivo supera el tamaño máximo (${maxMb}MB).`);
+      this.docFile.set(null);
+      return;
+    }
+
+    if (this.allowedMimeTypes.length > 0 && !this.allowedMimeTypes.includes(file.type)) {
+      this.docValidationError.set(
+        `Tipo de archivo no permitido (${file.type || 'desconocido'}). Permitidos: PDF, TXT, DOC, PNG, JPG.`
+      );
+      this.docFile.set(null);
+      return;
+    }
+
+    this.docFile.set(file);
+  }
+
+  uploadDocument(): void {
+    const carId = this.car()?.id ?? '';
+    if (!carId) {
+      this.docUploadError.set('No se pudo determinar el id del coche.');
+      return;
+    }
+
+    const file = this.docFile();
+    if (!file) {
+      this.docValidationError.set('Selecciona un archivo.');
+      return;
+    }
+
+    if (!this.docTitle().trim()) {
+      this.docValidationError.set('El título es obligatorio.');
+      return;
+    }
+
+    if (!this.docDocumentType().trim()) {
+      this.docValidationError.set('El tipo de documento es obligatorio.');
+      return;
+    }
+
+    this.docUploadLoading.set(true);
+    this.docUploadError.set(null);
+
+    const formData = new FormData();
+    formData.append('title', this.docTitle().trim());
+    formData.append('documentType', this.docDocumentType().trim());
+    formData.append('description', this.docDescription().trim());
+    formData.append('file', file, file.name);
+
+    console.log("doc:", formData)
+    this.carsService.PostCarDocument(carId, formData).subscribe({
+      next: (createdDoc) => {
+        this.docUploadLoading.set(false);
+
+        // keep panel open and refresh shown doc
+        this.carDocument.set(createdDoc);
+
+        // reset
+        this.docTitle.set('');
+        this.docDocumentType.set('');
+        this.docDescription.set('');
+        this.docFile.set(null);
+        this.docValidationError.set(null);
+
+        this.toastService.show('Documento subido correctamente.', 'success');
+      },
+      error: (err) => {
+        console.error(err);
+        this.docUploadLoading.set(false);
+        this.docUploadError.set('Error subiendo el documento');
+        this.toastService.show('Error subiendo el documento.', 'error');
+      },
+    });
+  }
 }

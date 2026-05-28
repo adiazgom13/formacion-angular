@@ -117,17 +117,9 @@ export class CarsService {
     return this.http.delete<CarDocument>(`${this.baseUrl}/${id}/document`);
   }
 
-  PostCarDocument(
-    id: string,
-    payload: {
-      title: string;
-      documentType: string;
-      description: string;
-      file: File | Blob;
-    }
-  ): Observable<CarDocument> {
-    return this.http.post<CarDocument>(`${this.baseUrl}/${id}/document`, payload);
-  }
+  PostCarDocument(id: string, formData: FormData): Observable<CarDocument> {
+  return this.http.post<CarDocument>(`${this.baseUrl}/${id}/document`, formData);
+}
 
   DownloadCarDocument(id: string): Observable<CarDocument> {
     return this.http.get<CarDocument>(`${this.baseUrl}/${id}/document/download`);
