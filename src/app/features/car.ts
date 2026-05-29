@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CarsService } from '../core/services/car.services';
 import { Car, CarDetails, CarDocument } from '../core/interfaces/cars.interface';
 import { ToastService } from '../core/services/toast.service';
@@ -20,6 +20,7 @@ export class CarComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private carsService = inject(CarsService);
   private toastService = inject(ToastService);
+  private router = inject(Router);
 
   car = signal<Car | null>(null);
   loading = signal(false);
@@ -28,6 +29,8 @@ export class CarComponent implements OnInit {
   isEditModalOpen = signal(false);
   editLoading = signal(false);
   editError = signal<string | null>(null);
+
+  isDeleteModalOpen = signal(false);
 
   newCarRegistrationDate = signal<string>('');
   newCarMileage = signal<number | null>(null);
@@ -131,6 +134,14 @@ export class CarComponent implements OnInit {
   closeEditModal(): void {
     this.isEditModalOpen.set(false);
   }
+
+  openDeleteModal(): void {
+    this.isDeleteModalOpen.set(true);
+  }
+
+  closeDeleteModal(): void {
+    this.isDeleteModalOpen.set(false);
+  }
   
 
   editCar(): void {
@@ -176,13 +187,27 @@ export class CarComponent implements OnInit {
         this.editError.set('Error creando el coche');
       },
     });
-
-    console.log('edit', payload);
     this.ngOnInit();
   }
 
   delete(): void {
-    console.log('delete', this.car());
+    const carId = this.car()?.id ?? '';
+    if (!carId) {
+      this.toastService.show('No se pudo determinar el id del coche.', 'error');
+      return;
+    }
+    
+    this.carsService.DeleteCar(carId).subscribe({
+        next: () => {
+          this.closeDeleteModal();
+          this.toastService.show('Coche eliminado correctamente', 'success');
+          this.router.navigate(['/catalogue']);
+        },
+        error: (err) => {
+          console.error(err);
+          this.toastService.show('Error eliminando el coche', 'error');
+        },
+      });
   }
 
 

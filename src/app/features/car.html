@@ -1,5 +1,23 @@
 <app-navbar></app-navbar>
 
+@if (isDeleteModalOpen()) {
+  <div class="modal-backdrop">
+    <div class="modal">
+      <h2>Eliminar coche</h2>
+      <p>¿Está seguro de que desea eliminar el coche?</p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">
+          Cancelar
+        </button>
+
+        <button type="button" class="btn btn-danger" (click)="delete()">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+}
 @if (isEditModalOpen()) {
 
 
@@ -279,7 +297,7 @@
               Adjuntar documento
             </button>
 
-            <button type="button" class="btn btn-danger" (click)="delete()">
+            <button type="button" class="btn btn-danger" (click)="openDeleteModal()">
               Eliminar
             </button>
 
