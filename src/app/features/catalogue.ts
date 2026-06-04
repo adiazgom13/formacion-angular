@@ -1,11 +1,14 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../shared/navbar';
-import { CarsService } from '../core/services/car.services';
+import { CarsService } from '../core/services/car.service';
 import { Car, Brand,Model, CarDetails, CarsResponse, CarsMeta } from '../core/interfaces/cars.interface';
 import { Router } from '@angular/router';
-import { BrandService } from '../core/services/brand.services';
+import { BrandService } from '../core/services/brand.service';
 import { FormsModule } from '@angular/forms';
+import { AppError } from '../core/errors/app-error.model';
+import { ToastService } from '../core/services/toast.service';
+
 
 @Component({
   selector: 'app-catalogue',
@@ -18,6 +21,8 @@ export class CatalogueComponent implements OnInit {
   private carsService = inject(CarsService);
   private brandService = inject(BrandService);
   private router = inject(Router)
+  private toast = inject(ToastService);
+
 
   cars = signal<Car[]>([]);
   car = signal<Car | null>(null);
@@ -106,8 +111,9 @@ export class CatalogueComponent implements OnInit {
   private loadBrands(): void {
     this.brandService.getBrands().subscribe({
       next: (brands) => this.brands.set(brands),
-      error: (err) => {
-        console.error('Error loading brands', err);
+      error: (e: AppError) => {
+        console.error('Error cargando las marcas de coches', e);
+        this.error.set(e.userMessage);
       },
     });
   }
@@ -131,9 +137,9 @@ export class CatalogueComponent implements OnInit {
           this.meta.set(res.meta); 
           this.loading.set(false);
         },
-        error: (err) => {
-          console.error(err);
-          this.error.set('Error cargando coches');
+        error: (e: AppError) => {
+          console.error('error cargando lista de coches', e);
+          this.error.set(e.userMessage);
           this.loading.set(false);
         },
       });
@@ -164,8 +170,9 @@ export class CatalogueComponent implements OnInit {
     this.brandService.getBrandModels(brandId).subscribe({
       next: (models) => 
         this.models.set(models),
-      error: (err) => {
-        console.error('Error loading models for brand', brandId, err);
+      error: (e: AppError)  => {
+        console.error('Error cargando los modelos de la marca ', brandId, e);
+        this.error.set(e.userMessage);
       },
     });
     console.log("brand models:",this.models)
@@ -214,8 +221,9 @@ export class CatalogueComponent implements OnInit {
             this.models.set(models);
             this.newCarModelId.set(fullCar.model?.id ?? '');
           },
-          error: (err) => {
-            console.error('Error loading models for brand', brandId, err);
+          error: (e: AppError) => {
+            console.error('Error loading models for brand', brandId, e);
+            this.error.set(e.userMessage);
             this.models.set([]);
           },
         });
@@ -232,11 +240,7 @@ export class CatalogueComponent implements OnInit {
       this.newCarPrice.set(d?.price ?? null);
       this.newCarManufactureYear.set(d?.manufactureYear ?? null);
       this.newCarCurrency.set(d?.currency ?? 'EUR');
-
-      // IMPORTANT: do not use `?? true` here, otherwise undefined becomes true.
-      // Keep a default if you want, but it should be false (or leave as-is).
       this.newCarAvailability.set(d?.availability ?? false);
-
       this.newCarColor.set(d?.color ?? '');
       this.newCarDescription.set(d?.description ?? '');
       this.newCarLicensePlate.set(d?.licensePlate ?? '');
@@ -244,10 +248,11 @@ export class CatalogueComponent implements OnInit {
       this.createLoading.set(false);
       this.createModalOpen.set(true);
     },
-    error: (err) => {
-      console.error('Error loading car by id', car.id, err);
+    error: (e: AppError) => {
+      console.error('Error editando coche con el id ', car.id, e);
+      this.error.set(e.userMessage);
       this.createLoading.set(false);
-      this.createError.set('Error cargando el coche para editar');
+      this.createError.set('Error editando coche');
       this.createModalOpen.set(true);
     },
   });
@@ -287,8 +292,9 @@ export class CatalogueComponent implements OnInit {
         this.closeCreateModal();
         this.loadCars(1);
       },
-      error: (err) => {
-        console.error(err);
+      error: (e: AppError) => {
+        console.error('Error creando coche', e);
+        this.error.set(e.userMessage);
         this.createLoading.set(false);
         this.createError.set('Error creando el coche');
       },
@@ -331,8 +337,9 @@ export class CatalogueComponent implements OnInit {
         // recargar lista (puede ser currentPage o 1)
         this.loadCars(this.currentPage());
       },
-      error: (err) => {
-        console.error(err);
+      error: (e: AppError) => {
+        console.error('Error actualizando el coche', this.car()?.id, e);
+        this.error.set(e.userMessage);
         this.createLoading.set(false);
         this.createError.set('Error actualizando el coche');
       },

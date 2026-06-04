@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { BrandService } from '../core/services/brand.services';
+import { BrandService } from '../core/services/brand.service';
 import { Brand, Model } from '../core/interfaces/cars.interface';
 import { NavbarComponent } from '../shared/navbar';
 import { Router } from '@angular/router';

@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
+//import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { CarsService } from '../core/services/car.services';
+import { CarsService } from '../core/services/car.service';
 import { Car, CarDetails, CarDocument } from '../core/interfaces/cars.interface';
 import { ToastService } from '../core/services/toast.service';
 import { NavbarComponent } from '../shared/navbar';
+import { AppError } from '../core/errors/app-error.model';
 
 
 
@@ -104,9 +105,9 @@ export class CarComponent implements OnInit {
         this.car.set(car);
         this.loading.set(false);
       },
-      error: (err) => {
-        console.error(err);
-        this.error.set('Error loading car details');
+      error: (e: AppError) => {
+        console.error('Error cargando información del coche', this.car()?.id,e);
+        this.error.set(e.userMessage);
         this.loading.set(false);
       },
     });
@@ -181,10 +182,11 @@ export class CarComponent implements OnInit {
         this.closeEditModal();
         
       },
-      error: (err) => {
-        console.error(err);
+      error: (e: AppError) => {
+        console.error('Error editando el coche',this.car()?.id ,e);
         this.editLoading.set(false);
         this.editError.set('Error creando el coche');
+        this.error.set(e.userMessage);
       },
     });
     this.ngOnInit();
@@ -203,8 +205,9 @@ export class CarComponent implements OnInit {
           this.toastService.show('Coche eliminado correctamente', 'success');
           this.router.navigate(['/catalogue']);
         },
-        error: (err) => {
-          console.error(err);
+        error: (e: AppError) => {
+          console.error(e);
+          this.error.set(e.userMessage);
           this.toastService.show('Error eliminando el coche', 'error');
         },
       });
@@ -235,19 +238,29 @@ export class CarComponent implements OnInit {
         this.isViewDocumentPanelOpen.set(true);
         this.viewDocumentLoading.set(false);
       },
-      error: (err: HttpErrorResponse) => {
-        this.viewDocumentLoading.set(false);
+      //Manejo previo al interceptor y tratamiento de app error
+      //error: (err: HttpErrorResponse) => {
+      //  this.viewDocumentLoading.set(false);
 
-        if (err?.status === 404) {
-          this.toastService.show('Este coche no tiene documento adjunto.', 'info');
-          // NO abrir panel
-          return;
-        }
+      //  if (err?.status === 404) {
+      //    this.toastService.show('Este coche no tiene documento adjunto.', 'info');
+      //    return;
+      //  }
+      //  console.error(err);
+      //  this.toastService.show('Error cargando documento.', 'error');
+      //},
 
-        console.error(err);
-        this.toastService.show('Error cargando documento.', 'error');
-        // NO abrir panel
-      },
+      error: (e: AppError) => {
+      this.viewDocumentLoading.set(false);
+
+      if (e.code === 'NOT_FOUND' || e.httpStatus === 404) {
+        this.toastService.show('Este coche no tiene documento adjunto.', 'info');
+        return;
+      }
+
+      console.error('Error cargando documento', e.details ?? e);
+      this.toastService.show(e.userMessage || 'Error cargando documento.', 'error');
+    },
     });
   }
 
@@ -359,11 +372,15 @@ export class CarComponent implements OnInit {
 
         this.toastService.show('Documento subido correctamente.', 'success');
       },
-      error: (err) => {
-        console.error(err);
+      error: (e: AppError) => {
+        console.error('Error subiendo el documento', e.details ?? e);
         this.docUploadLoading.set(false);
-        this.docUploadError.set('Error subiendo el documento');
-        this.toastService.show('Error subiendo el documento.', 'error');
+
+        // inline para el panel
+        this.docUploadError.set(e.userMessage);
+
+        // opcional: también toast
+        this.toastService.show(e.userMessage, 'error');
       },
     });
   }
