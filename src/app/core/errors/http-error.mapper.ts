@@ -11,8 +11,8 @@ export function mapHttpErrorToAppError(err: HttpErrorResponse): AppError {
     };
   }
 
-  // Si tu backend devuelve validaciones en un formato conocido,
-  // aquí es donde lo parseas a fieldErrors.
+  // Si el backend devuelve validaciones en un formato conocido,
+  // aquí es donde se parsea a fieldErrors. 
   // Ejemplo genérico: { errors: { field1: "msg", field2: "msg2" } }
   const maybeErrors = err.error?.errors;
   if (err.status === 400 && maybeErrors && typeof maybeErrors === 'object') {
