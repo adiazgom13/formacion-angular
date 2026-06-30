@@ -276,15 +276,17 @@
           }
 
           <div class="car-actions">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              (click)="openEditModal()"
-            >
-              Editar
-            </button>
+            @if (isAdmin()) {
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="openEditModal()"
+              >
+                Editar
+              </button>
+            }
 
-<button
+            <button
               type="button"
               class="btn btn-secondary"
               (click)="openViewDocumentPanel()"
@@ -297,9 +299,11 @@
               Adjuntar documento
             </button>
 
-            <button type="button" class="btn btn-danger" (click)="openDeleteModal()">
-              Eliminar
-            </button>
+            @if (isAdmin()) {
+              <button type="button" class="btn btn-danger" (click)="openDeleteModal()">
+                Eliminar
+              </button>
+            }
 
             <button type="button" class="btn btn-secondary" routerLink="/catalogue">
               Volver al catálogo

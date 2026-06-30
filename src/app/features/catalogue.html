@@ -318,14 +318,15 @@
                           >
                             Ver
                           </button>
-
-                          <button
-                            type="button"
-                            class="btn btn-secondary"
-                            (click)="openEditModal(car)"
-                          >
-                            Editar
-                          </button>
+                          @if (isAdmin()) {
+                            <button
+                              type="button"
+                              class="btn btn-secondary"
+                              (click)="openEditModal(car)"
+                            >
+                              Editar
+                            </button>
+                          }
                           
                         </div>
                       </td>

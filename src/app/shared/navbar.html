@@ -2,5 +2,10 @@
     <button routerLink="/home">Inicio</button>
     <button routerLink="/catalogue">Catálogo</button>
     <button routerLink="/catalogue/brands">Marcas</button>
-    <button routerLink="/login">Login</button>
+
+    @if (!user()) {
+      <button routerLink="/login">Login</button>
+    } @else {
+      <button (click)="logout()">Logout</button>
+    }
 </nav>

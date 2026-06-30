@@ -8,7 +8,7 @@ import { BrandService } from '../core/services/brand.service';
 import { FormsModule } from '@angular/forms';
 import { AppError } from '../core/errors/app-error.model';
 import { ToastService } from '../core/services/toast.service';
-
+import { AuthService } from '../core/services/auth.service';
 
 @Component({
   selector: 'app-catalogue',
@@ -22,7 +22,7 @@ export class CatalogueComponent implements OnInit {
   private brandService = inject(BrandService);
   private router = inject(Router)
   private toast = inject(ToastService);
-
+  private auth = inject(AuthService);
 
   cars = signal<Car[]>([]);
   car = signal<Car | null>(null);
@@ -54,6 +54,7 @@ export class CatalogueComponent implements OnInit {
   totalPages = computed(() => this.meta()?.totalPages ?? 0);
   hasNextPage = computed(() => this.meta()?.hasNextPage ?? false);
   hasPreviousPage = computed(() => this.meta()?.hasPreviousPage ?? false);
+  readonly isAdmin = computed(() => this.auth.user()?.role === 'ADMIN');
 
   newCarBrandId = signal<string>('');
   newCarModelId = signal<string>('');

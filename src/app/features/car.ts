@@ -7,6 +7,7 @@ import { Car, CarDetails, CarDocument } from '../core/interfaces/cars.interface'
 import { ToastService } from '../core/services/toast.service';
 import { NavbarComponent } from '../shared/navbar';
 import { AppError } from '../core/errors/app-error.model';
+import { AuthService } from '../core/services/auth.service';
 
 
 
@@ -22,6 +23,7 @@ export class CarComponent implements OnInit {
   private carsService = inject(CarsService);
   private toastService = inject(ToastService);
   private router = inject(Router);
+  private auth = inject(AuthService);
 
   car = signal<Car | null>(null);
   loading = signal(false);
@@ -78,6 +80,8 @@ export class CarComponent implements OnInit {
   ];
   readonly maxFileSizeBytes = 5 * 1024 * 1024; // 5MB error 413
 
+
+  readonly isAdmin = computed(() => this.auth.user()?.role === 'ADMIN');
 
   detail = computed<CarDetails | null>(() => {
     const c = this.car();

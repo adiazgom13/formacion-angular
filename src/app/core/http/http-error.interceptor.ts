@@ -21,8 +21,10 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
         return auth.refresh().pipe(
           switchMap(() => next(req)),
           catchError((refreshErr) => {
-            // refresh failed -> redirect to login and map the original 401
-            router.navigate(['/login']);
+            // no access cookie refresh -> redirect to login and map the original 401 unless home
+            if (!router.url.startsWith('/home')) {
+              router.navigate(['/login']);
+            }
             const appError = mapHttpErrorToAppError(err);
             return throwError(() => appError);
           }),
