@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CarsService } from '../core/services/car.service';
 import { Car, CarDetails, CarDocument } from '../core/interfaces/cars.interface';
 import { ToastService } from '../core/services/toast.service';
-import { NavbarComponent } from '../shared/navbar';
+import { NavbarComponent } from '../shared/navbar/navbar';
 import { AppError } from '../core/errors/app-error.model';
 import { AuthService } from '../core/services/auth.service';
 

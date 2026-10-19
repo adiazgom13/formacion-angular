@@ -1,13 +1,13 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavbarComponent } from '../shared/navbar';
+import { NavbarComponent } from '../shared/navbar/navbar';
 import { CarsService } from '../core/services/car.service';
 import { Car, Brand,Model, CarDetails, CarsResponse, CarsMeta } from '../core/interfaces/cars.interface';
 import { Router } from '@angular/router';
 import { BrandService } from '../core/services/brand.service';
 import { FormsModule } from '@angular/forms';
 import { AppError } from '../core/errors/app-error.model';
-import { ToastService } from '../core/services/toast.service';
+//import { ToastService } from '../core/services/toast.service';
 import { AuthService } from '../core/services/auth.service';
 
 @Component({
@@ -21,7 +21,8 @@ export class CatalogueComponent implements OnInit {
   private carsService = inject(CarsService);
   private brandService = inject(BrandService);
   private router = inject(Router)
-  private toast = inject(ToastService);
+  //notificaciones toast
+  //private toast = inject(ToastService);
   private auth = inject(AuthService);
 
   cars = signal<Car[]>([]);
@@ -146,7 +147,7 @@ export class CatalogueComponent implements OnInit {
       });
   }
 
-  // paginación usando meta del backend
+  
   nextPage(): void {
     if (this.hasNextPage()) {
       this.loadCars(this.currentPage() + 1);
@@ -210,7 +211,7 @@ export class CatalogueComponent implements OnInit {
 
     this.carsService.getCarById(car.id).subscribe({
     next: (fullCar: Car) => {
-      // Brand / model
+      
       this.newCarBrandId.set(fullCar.brand?.id ?? '');
       this.newCarModelId.set(fullCar.model?.id ?? '');
 
