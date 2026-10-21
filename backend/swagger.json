@@ -1,0 +1,1475 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "description": "Authenticates a user with email and password, issues an HttpOnly access cookie and an HttpOnly refresh cookie, and returns the authenticated user profile. In Swagger, this is the first endpoint to call before trying protected routes. The frontend should use `withCredentials` on subsequent requests instead of manually storing tokens.\n\nThe access token uses the configured short-lived expiration and the refresh token uses the configured longer-lived expiration. The frontend should call `POST /auth/refresh` after a `401` caused by an expired access token.\n\n**Available credentials for the practice environment:**\n- Admin: `admin@example.com` / `admin123`\n- User: `user@example.com` / `user123`",
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication completed successfully. Returns the user profile and sets the access and refresh cookies.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid email or password."
+          }
+        },
+        "summary": "Authenticate and issue access and refresh cookies",
+        "tags": [
+          "Access Management"
+        ]
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "description": "Uses the HttpOnly refresh cookie to issue a new short-lived access token and rotate the refresh token. In Swagger, call this after `POST /auth/login` if a protected endpoint starts returning 401 because the access cookie expired.",
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Session renewed successfully. New access and refresh cookies were issued.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid refresh cookie."
+          }
+        },
+        "security": [
+          {
+            "refresh_token": []
+          }
+        ],
+        "summary": "Rotate the refresh token and renew the access cookie",
+        "tags": [
+          "Access Management"
+        ]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "description": "Removes the HttpOnly access and refresh cookies used by the application and invalidates the active refresh session. In Swagger, calling this endpoint should make `GET /auth/me` return 401 afterwards.",
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "Session cookies cleared successfully."
+          }
+        },
+        "summary": "Clear the authenticated session cookies",
+        "tags": [
+          "Access Management"
+        ]
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "description": "Returns the profile associated with the short-lived access cookie. In Swagger, use this endpoint immediately after `POST /auth/login` to verify that the browser session is already authenticated.",
+        "operationId": "AuthController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Authenticated user profile returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access cookie."
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Retrieve the current authenticated user profile",
+        "tags": [
+          "Access Management"
+        ]
+      }
+    },
+    "/cars": {
+      "get": {
+        "operationId": "CarsController_getAllCars",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number to retrieve (1-indexed)",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return per page",
+            "schema": {
+              "minimum": 1,
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "brandId",
+            "required": false,
+            "in": "query",
+            "description": "Filter results to a single brand by exact brand identifier",
+            "schema": {
+              "example": "brand-1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "modelId",
+            "required": false,
+            "in": "query",
+            "description": "Filter results to a single model by exact model identifier. Typically combined with brandId.",
+            "schema": {
+              "example": "model-1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Field used to sort the vehicle list. Only list-visible fields are exposed here.",
+            "schema": {
+              "example": "brand",
+              "enum": [
+                "brand",
+                "model",
+                "total"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "description": "Sort direction applied to sortBy",
+            "schema": {
+              "default": "asc",
+              "example": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle catalog returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginatedResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/CarSummary"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "List vehicles with pagination, filters and sorting",
+        "tags": [
+          "Vehicles"
+        ]
+      },
+      "post": {
+        "operationId": "CarsController_createCar",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCarDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Vehicle created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Car"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid vehicle payload"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "409": {
+            "description": "Vehicle conflicts with an existing license plate or brand/model combination"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Create a new vehicle entry (ADMIN only)",
+        "tags": [
+          "Vehicles"
+        ]
+      }
+    },
+    "/cars/export/excel": {
+      "get": {
+        "operationId": "CarsController_exportCarsToExcel",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number to retrieve (1-indexed)",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return per page",
+            "schema": {
+              "minimum": 1,
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "brandId",
+            "required": false,
+            "in": "query",
+            "description": "Filter results to a single brand by exact brand identifier",
+            "schema": {
+              "example": "brand-1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "modelId",
+            "required": false,
+            "in": "query",
+            "description": "Filter results to a single model by exact model identifier. Typically combined with brandId.",
+            "schema": {
+              "example": "model-1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Field used to sort the vehicle list. Only list-visible fields are exposed here.",
+            "schema": {
+              "example": "brand",
+              "enum": [
+                "brand",
+                "model",
+                "total"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "description": "Sort direction applied to sortBy",
+            "schema": {
+              "default": "asc",
+              "example": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Excel file generated successfully"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Export the filtered vehicle table to a real Excel file",
+        "tags": [
+          "Vehicles"
+        ]
+      }
+    },
+    "/cars/{id}": {
+      "get": {
+        "operationId": "CarsController_getCarById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Vehicle identifier",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Car"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle not found"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Retrieve a vehicle by identifier",
+        "tags": [
+          "Vehicles"
+        ]
+      },
+      "put": {
+        "operationId": "CarsController_updateCar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Vehicle identifier",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCarDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vehicle updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Car"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid vehicle payload. PUT expects the full CreateCarDto contract."
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Vehicle not found"
+          },
+          "409": {
+            "description": "Vehicle conflicts with an existing license plate or brand/model combination"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Update an existing vehicle entry (ADMIN only)",
+        "tags": [
+          "Vehicles"
+        ]
+      },
+      "delete": {
+        "operationId": "CarsController_deleteCar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Vehicle identifier",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Vehicle deleted successfully"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Vehicle not found"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Delete a vehicle entry (ADMIN only)",
+        "tags": [
+          "Vehicles"
+        ]
+      }
+    },
+    "/cars/{id}/document": {
+      "get": {
+        "operationId": "CarsController_getCarDocumentMetadata",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Vehicle identifier",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document metadata returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadedCarDocumentResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle or document not found"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Retrieve metadata for the single document linked to a vehicle",
+        "tags": [
+          "Vehicles"
+        ]
+      },
+      "delete": {
+        "operationId": "CarsController_deleteCarDocument",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Vehicle identifier",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Document deleted successfully"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Vehicle or document not found"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Delete the single document linked to a vehicle (ADMIN only)",
+        "tags": [
+          "Vehicles"
+        ]
+      },
+      "post": {
+        "operationId": "CarsController_uploadCarDocument",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Vehicle identifier",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Ficha tecnica ITV"
+                  },
+                  "documentType": {
+                    "type": "string",
+                    "enum": [
+                      "invoice",
+                      "inspection",
+                      "insurance",
+                      "registration",
+                      "other"
+                    ],
+                    "example": "inspection"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Documento de prueba para practicar subida con FormData"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Document stored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadedCarDocumentResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid multipart payload or missing file"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Vehicle not found"
+          },
+          "413": {
+            "description": "Uploaded file exceeds the 5 MB limit"
+          },
+          "415": {
+            "description": "Unsupported file type. Allowed formats: pdf, txt, doc, docx, png, jpg, jpeg."
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Upload or replace the single stored document for a vehicle (ADMIN only)",
+        "tags": [
+          "Vehicles"
+        ]
+      }
+    },
+    "/cars/{id}/document/download": {
+      "get": {
+        "operationId": "CarsController_downloadCarDocument",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Vehicle identifier",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document download started successfully"
+          },
+          "404": {
+            "description": "Vehicle or document not found"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Download the single document linked to a vehicle",
+        "tags": [
+          "Vehicles"
+        ]
+      }
+    },
+    "/seed": {
+      "post": {
+        "description": "Replaces the current in-memory vehicle catalog with the predefined dataset used for practice and onboarding. Requires an authenticated session with role `ADMIN`.",
+        "operationId": "SeedController_populateDB",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Catalog dataset loaded successfully"
+          },
+          "401": {
+            "description": "Missing or invalid session cookie"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Unexpected error while loading the catalog dataset"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Load the predefined catalog dataset",
+        "tags": [
+          "Catalog Administration"
+        ]
+      }
+    },
+    "/brands": {
+      "get": {
+        "operationId": "BrandsController_getAllBrands",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Vehicle brand catalog returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Brand"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "List available vehicle brands",
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/brands/{brandId}/models": {
+      "get": {
+        "operationId": "BrandsController_getModelsByBrand",
+        "parameters": [
+          {
+            "name": "brandId",
+            "required": true,
+            "in": "path",
+            "description": "Brand identifier",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Model catalog for the requested brand returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Model"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Brand not found"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "List models for a specific brand",
+        "tags": [
+          "Catalog"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "NTT Demo Vehicle Catalog API",
+    "description": "Backend API for the NTT Angular practice: authentication, vehicle catalog, brands, models, pagination and role-based access.\n\nRecommended flow in Swagger: call `POST /auth/login`, then use `GET /auth/me` and the protected endpoints normally. When the short-lived access cookie expires, call `POST /auth/refresh` and retry the failed request. Use `POST /auth/logout` to close the session cleanly.",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "refresh_token"
+      }
+    },
+    "schemas": {
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Account email address",
+            "example": "admin@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Account password",
+            "example": "admin123"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "UserProfileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique user identifier",
+            "example": "1"
+          },
+          "email": {
+            "type": "string",
+            "description": "User email address",
+            "example": "admin@example.com"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name associated with the account",
+            "example": "Admin User"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role assigned to the account. ADMIN can create, update and delete vehicles. USER has read-only access.",
+            "enum": [
+              "ADMIN",
+              "USER"
+            ],
+            "example": "ADMIN"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "name",
+          "role"
+        ]
+      },
+      "LoginResponseDto": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "description": "Profile of the authenticated user whose access and refresh cookies were issued",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserProfileDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "user"
+        ]
+      },
+      "PaginatedMetaDto": {
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "type": "number",
+            "description": "Total number of records matching the current query",
+            "example": 50
+          },
+          "itemCount": {
+            "type": "number",
+            "description": "Number of records returned in the current page",
+            "example": 10
+          },
+          "itemsPerPage": {
+            "type": "number",
+            "description": "Maximum records per page requested by the client",
+            "example": 10
+          },
+          "totalPages": {
+            "type": "number",
+            "description": "Total number of pages for the current query and limit",
+            "example": 5
+          },
+          "currentPage": {
+            "type": "number",
+            "description": "Current page number (1-indexed)",
+            "example": 1
+          },
+          "hasNextPage": {
+            "type": "boolean",
+            "description": "Indicates whether another page exists after the current one",
+            "example": true
+          },
+          "hasPreviousPage": {
+            "type": "boolean",
+            "description": "Indicates whether a page exists before the current one",
+            "example": false
+          }
+        },
+        "required": [
+          "totalItems",
+          "itemCount",
+          "itemsPerPage",
+          "totalPages",
+          "currentPage",
+          "hasNextPage",
+          "hasPreviousPage"
+        ]
+      },
+      "PaginatedResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "Collection of records returned for the current page",
+            "type": "array",
+            "items": {
+              "type": "array"
+            }
+          },
+          "meta": {
+            "description": "Pagination metadata for the current query",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedMetaDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "meta"
+        ]
+      },
+      "CarBrandSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Resolved brand identifier",
+            "example": "brand-1"
+          },
+          "name": {
+            "type": "string",
+            "description": "Resolved brand display name",
+            "example": "Toyota"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "CarModelSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Resolved model identifier",
+            "example": "model-1"
+          },
+          "name": {
+            "type": "string",
+            "description": "Resolved model display name",
+            "example": "Corolla"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "CarSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Vehicle identifier"
+          },
+          "brand": {
+            "description": "Resolved brand information for read operations",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CarBrandSummary"
+              }
+            ]
+          },
+          "model": {
+            "description": "Resolved model information for read operations",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CarModelSummary"
+              }
+            ]
+          },
+          "total": {
+            "type": "number",
+            "description": "Total number of vehicle detail entries"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "Representative vehicle image URL for list and card views",
+            "example": "/images/car_images/model-1_toyota_corolla.webp"
+          }
+        },
+        "required": [
+          "id",
+          "brand",
+          "model"
+        ]
+      },
+      "CarDetailEntity": {
+        "type": "object",
+        "properties": {
+          "registrationDate": {
+            "type": "string",
+            "description": "Official registration date of the car (ISO 8601 UTC format)",
+            "example": "2024-10-30T10:01:35.288Z",
+            "pattern": "YYYY-MM-DDTHH:MM:SS.mmmZ"
+          },
+          "mileage": {
+            "type": "number",
+            "description": "Current mileage of the car in kilometres",
+            "example": 15000,
+            "minimum": 0
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency of the price as an ISO 4217 code. Defaults to EUR when not provided.",
+            "enum": [
+              "EUR",
+              "GBP",
+              "CHF",
+              "SEK",
+              "NOK",
+              "DKK",
+              "PLN",
+              "CZK",
+              "HUF",
+              "RON",
+              "BGN",
+              "HRK",
+              "ARS",
+              "BRL",
+              "CLP",
+              "COP",
+              "PEN",
+              "UYU",
+              "PYG",
+              "BOB",
+              "VES",
+              "USD",
+              "CAD",
+              "MXN",
+              "JPY",
+              "CNY",
+              "INR",
+              "KRW",
+              "SGD",
+              "HKD",
+              "MYR",
+              "IDR",
+              "THB",
+              "VND",
+              "PKR",
+              "AUD",
+              "NZD",
+              "ZAR",
+              "EGP",
+              "NGN",
+              "KES",
+              "GHS"
+            ],
+            "example": "EUR",
+            "default": "EUR"
+          },
+          "price": {
+            "type": "number",
+            "description": "Asking price of the car (must be a positive number)",
+            "example": 20000,
+            "minimum": 1
+          },
+          "manufactureYear": {
+            "type": "number",
+            "description": "Year the car was manufactured. Must be an integer between 1900 and the current year (2026).\nAlso must be less than or equal to the year in registrationDate.",
+            "example": 2020,
+            "minimum": 1900,
+            "maximum": 2026
+          },
+          "availability": {
+            "type": "boolean",
+            "description": "Whether the car is currently available for sale. Defaults to true when not provided.",
+            "example": true,
+            "default": true
+          },
+          "color": {
+            "type": "string",
+            "description": "Exterior colour of the car",
+            "example": "Midnight Blue"
+          },
+          "description": {
+            "type": "string",
+            "description": "Free-text description highlighting condition, extras, or any relevant details",
+            "example": "Excellent condition, single owner, full service history."
+          },
+          "licensePlate": {
+            "type": "string",
+            "description": "Spanish license plate. Format: 4 digits + optional space + 3 consonants (e.g. 1234 BBB). Must be unique across all cars.",
+            "example": "1234 BBB",
+            "pattern": "^[0-9]{4}\\s?[BCDFGHJKLMNPRSTVWXYZ]{3}$"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "Vehicle image URL resolved by the backend",
+            "example": "https://images.unsplash.com/photo-1503376780353-7e6692767b70",
+            "readOnly": true
+          }
+        },
+        "required": [
+          "registrationDate",
+          "mileage",
+          "price",
+          "manufactureYear",
+          "licensePlate",
+          "imageUrl"
+        ]
+      },
+      "Car": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Vehicle identifier"
+          },
+          "brand": {
+            "description": "Resolved brand information for read operations",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CarBrandSummary"
+              }
+            ]
+          },
+          "model": {
+            "description": "Resolved model information for read operations",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CarModelSummary"
+              }
+            ]
+          },
+          "carDetails": {
+            "description": "Vehicle detail entries",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CarDetailEntity"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "Total number of vehicle detail entries"
+          }
+        },
+        "required": [
+          "id",
+          "brand",
+          "model"
+        ]
+      },
+      "CarDetailsDto": {
+        "type": "object",
+        "properties": {
+          "registrationDate": {
+            "type": "string",
+            "description": "Official registration date of the car (ISO 8601 UTC format)",
+            "example": "2024-10-30T10:01:35.288Z",
+            "pattern": "YYYY-MM-DDTHH:MM:SS.mmmZ"
+          },
+          "mileage": {
+            "type": "number",
+            "description": "Current mileage of the car in kilometres",
+            "example": 15000,
+            "minimum": 0
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency of the price as an ISO 4217 code. Defaults to EUR when not provided.",
+            "enum": [
+              "EUR",
+              "GBP",
+              "CHF",
+              "SEK",
+              "NOK",
+              "DKK",
+              "PLN",
+              "CZK",
+              "HUF",
+              "RON",
+              "BGN",
+              "HRK",
+              "ARS",
+              "BRL",
+              "CLP",
+              "COP",
+              "PEN",
+              "UYU",
+              "PYG",
+              "BOB",
+              "VES",
+              "USD",
+              "CAD",
+              "MXN",
+              "JPY",
+              "CNY",
+              "INR",
+              "KRW",
+              "SGD",
+              "HKD",
+              "MYR",
+              "IDR",
+              "THB",
+              "VND",
+              "PKR",
+              "AUD",
+              "NZD",
+              "ZAR",
+              "EGP",
+              "NGN",
+              "KES",
+              "GHS"
+            ],
+            "example": "EUR",
+            "default": "EUR"
+          },
+          "price": {
+            "type": "number",
+            "description": "Asking price of the car (must be a positive number)",
+            "example": 20000,
+            "minimum": 1
+          },
+          "manufactureYear": {
+            "type": "number",
+            "description": "Year the car was manufactured. Must be an integer between 1900 and the current year (2026).\nAlso must be less than or equal to the year in registrationDate.",
+            "example": 2020,
+            "minimum": 1900,
+            "maximum": 2026
+          },
+          "availability": {
+            "type": "boolean",
+            "description": "Whether the car is currently available for sale. Defaults to true when not provided.",
+            "example": true,
+            "default": true
+          },
+          "color": {
+            "type": "string",
+            "description": "Exterior colour of the car",
+            "example": "Midnight Blue"
+          },
+          "description": {
+            "type": "string",
+            "description": "Free-text description highlighting condition, extras, or any relevant details",
+            "example": "Excellent condition, single owner, full service history."
+          },
+          "licensePlate": {
+            "type": "string",
+            "description": "Spanish license plate. Format: 4 digits + optional space + 3 consonants (e.g. 1234 BBB). Must be unique across all cars.",
+            "example": "1234 BBB",
+            "pattern": "^[0-9]{4}\\s?[BCDFGHJKLMNPRSTVWXYZ]{3}$"
+          }
+        },
+        "required": [
+          "registrationDate",
+          "mileage",
+          "price",
+          "manufactureYear",
+          "licensePlate"
+        ]
+      },
+      "CreateCarDto": {
+        "type": "object",
+        "properties": {
+          "brandId": {
+            "type": "string",
+            "description": "ID of the car brand. Must reference an existing brand (e.g. brand-1, brand-2).",
+            "example": "brand-1"
+          },
+          "modelId": {
+            "type": "string",
+            "description": "ID of the car model. Must reference a model that belongs to the selected brand.",
+            "example": "model-1"
+          },
+          "carDetails": {
+            "description": "List of car detail entries (one per listing or unit). Can be omitted to create a car without details.",
+            "example": [
+              {
+                "registrationDate": "2024-10-30T10:01:35.288Z",
+                "mileage": 15000,
+                "price": 20000,
+                "manufactureYear": 2020,
+                "currency": "EUR",
+                "availability": true,
+                "color": "Midnight Blue",
+                "description": "Excellent condition, single owner.",
+                "licensePlate": "1234 BBB"
+              }
+            ],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CarDetailsDto"
+            }
+          }
+        },
+        "required": [
+          "brandId",
+          "modelId"
+        ]
+      },
+      "UploadedCarDocumentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Generated identifier for the uploaded document metadata",
+            "example": "a3f7d1e3-5c7e-4a50-8b84-df73b46e5d4f"
+          },
+          "carId": {
+            "type": "string",
+            "description": "Vehicle identifier the upload was associated with",
+            "example": "9f65ec7a-ef2c-4d8a-a7dc-248018fca712"
+          },
+          "originalName": {
+            "type": "string",
+            "description": "Original filename received in the multipart upload",
+            "example": "itv.pdf"
+          },
+          "mimeType": {
+            "type": "string",
+            "description": "MIME type reported for the uploaded file",
+            "example": "application/pdf"
+          },
+          "size": {
+            "type": "number",
+            "description": "File size in bytes",
+            "example": 184532
+          },
+          "documentType": {
+            "type": "string",
+            "description": "Functional category assigned to the document",
+            "enum": [
+              "invoice",
+              "inspection",
+              "insurance",
+              "registration",
+              "other"
+            ],
+            "example": "inspection"
+          },
+          "title": {
+            "type": "string",
+            "description": "Optional display title for the document",
+            "example": "Ficha tecnica ITV"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional notes attached to the document",
+            "example": "Documento de prueba para practicar subida con FormData"
+          },
+          "uploadedAt": {
+            "type": "string",
+            "description": "Timestamp when the upload was received",
+            "example": "2026-03-27T10:15:00.000Z"
+          },
+          "persisted": {
+            "type": "boolean",
+            "description": "Indicates whether the backend persisted the binary content",
+            "example": true
+          },
+          "downloadUrl": {
+            "type": "string",
+            "description": "Download URL for the single document associated with the car",
+            "example": "/cars/9f65ec7a-ef2c-4d8a-a7dc-248018fca712/document/download"
+          },
+          "message": {
+            "type": "string",
+            "description": "Explains how the backend handled the uploaded file",
+            "example": "The file was stored on disk and replaced any previous document linked to the vehicle."
+          }
+        },
+        "required": [
+          "id",
+          "carId",
+          "originalName",
+          "mimeType",
+          "size",
+          "documentType",
+          "uploadedAt",
+          "persisted",
+          "downloadUrl",
+          "message"
+        ]
+      },
+      "Brand": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Brand identifier",
+            "example": "brand-1"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the brand",
+            "example": "Toyota"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "Model": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Model identifier",
+            "example": "model-1"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the model",
+            "example": "Corolla"
+          },
+          "brandId": {
+            "type": "string",
+            "description": "Identifier of the brand this model belongs to",
+            "example": "brand-1"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "brandId"
+        ]
+      }
+    }
+  }
+}

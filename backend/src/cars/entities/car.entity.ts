@@ -1,0 +1,91 @@
+import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { CarDetailsDto, CreateCarDto } from '../dto';
+
+export class CarBrandSummary {
+  @ApiProperty({
+    description: 'Resolved brand identifier',
+    type: String,
+    example: 'brand-1',
+  })
+  id: string;
+
+  @ApiProperty({
+    description: 'Resolved brand display name',
+    type: String,
+    example: 'Toyota',
+  })
+  name: string;
+}
+
+export class CarModelSummary {
+  @ApiProperty({
+    description: 'Resolved model identifier',
+    type: String,
+    example: 'model-1',
+  })
+  id: string;
+
+  @ApiProperty({
+    description: 'Resolved model display name',
+    type: String,
+    example: 'Corolla',
+  })
+  name: string;
+}
+
+/**
+ * Extends CarDetailsDto with the imageUrl that the backend resolves
+ * automatically (never provided by the client in the request body).
+ */
+export class CarDetailEntity extends CarDetailsDto {
+  @ApiProperty({
+    description: 'Vehicle image URL resolved by the backend',
+    type: String,
+    example: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70',
+    readOnly: true,
+  })
+  imageUrl: string;
+}
+
+export class StoredCar extends OmitType(CreateCarDto, ['carDetails'] as const) {
+  @ApiProperty({ description: 'Vehicle identifier', type: String })
+  id: string;
+
+  @ApiProperty({
+    description: 'Resolved brand information for read operations',
+    type: CarBrandSummary,
+  })
+  brand: CarBrandSummary;
+
+  @ApiProperty({
+    description: 'Resolved model information for read operations',
+    type: CarModelSummary,
+  })
+  model: CarModelSummary;
+
+  @ApiProperty({
+    description: 'Vehicle detail entries',
+    type: [CarDetailEntity],
+    required: false,
+  })
+  carDetails?: CarDetailEntity[];
+
+  @ApiProperty({
+    description: 'Total number of vehicle detail entries',
+    type: Number,
+    required: false,
+  })
+  total?: number;
+}
+
+export class Car extends OmitType(StoredCar, ['brandId', 'modelId'] as const) {}
+
+export class CarSummary extends OmitType(Car, ['carDetails'] as const) {
+  @ApiProperty({
+    description: 'Representative vehicle image URL for list and card views',
+    type: String,
+    required: false,
+    example: '/images/car_images/model-1_toyota_corolla.webp',
+  })
+  imageUrl?: string;
+}
