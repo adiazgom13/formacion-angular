@@ -212,12 +212,16 @@
           <h2>Filtros</h2>
             <label>
               Marca:
-              <input
-                type="text"
-                #brandInput
+              <select
+                #brandSelect
                 [value]="uiBrandId() ?? ''"
-                (input)="uiBrandId.set(brandInput.value || undefined)"
-              />
+                (change)="uiBrandId.set(brandSelect.value || undefined)"
+              >
+                <option value="">Todas</option>
+                @for (brand of brands(); track brand.id) {
+                  <option [value]="brand.id">{{ brand.name }}</option>
+                }
+              </select>
             </label>
 
             <label>
