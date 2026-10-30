@@ -214,8 +214,8 @@
               Marca:
               <select
                 #brandSelect
-                [value]="uiBrandId() ?? ''"
-                (change)="uiBrandId.set(brandSelect.value || undefined)"
+                [value]="filterBrandId() ?? ''"
+                (change)="filterBrandId.set(brandSelect.value || undefined)"
               >
                 <option value="">Todas</option>
                 @for (brand of brands(); track brand.id) {
@@ -229,8 +229,8 @@
               <input
                 type="text"
                 #brandInput
-                [value]="uiModelId() ?? ''"
-                (input)="uiModelId.set(brandInput.value || undefined)"
+                [value]="filterModelId() ?? ''"
+                (input)="filterModelId.set(brandInput.value || undefined)"
               />
             </label>
 
@@ -238,8 +238,8 @@
               Ordenar por:
               <select
                 #sortBySelect
-                [value]="uiSortBy()"
-                (change)="uiSortBy.set(sortBySelect.value)"
+                [value]="SortBy()"
+                (change)="SortBy.set(sortBySelect.value)"
               >
                 <option value="brand">Marca</option>
                 <option value="model">Modelo</option>
@@ -251,8 +251,8 @@
               En orden:
               <select
                 #orderBySelect
-                [value]="uiSortOrder()"
-                (change)="uiSortOrder.set(
+                [value]="SortOrder()"
+                (change)="SortOrder.set(
                   orderBySelect.value === 'asc' || orderBySelect.value === 'desc'
                     ? orderBySelect.value
                     : undefined
