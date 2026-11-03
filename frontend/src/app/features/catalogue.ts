@@ -37,10 +37,11 @@ export class CatalogueComponent implements OnInit {
   sortBy = signal<string>('brand');
   sortOrder = signal<'asc' | 'desc' | undefined>('asc');
   //selección temporal antes de aplicar filtro
-  uiBrandId = signal<string | undefined>(undefined);
-  uiModelId = signal<string | undefined>(undefined);
-  uiSortBy = signal<string>('brand');
-  uiSortOrder = signal<'asc' | 'desc' | undefined>('asc');
+  filterBrandId = signal<string | undefined>(undefined);
+  filterModels = signal<Model[] | undefined>(undefined);
+  filterModelId = signal<string | undefined>(undefined);
+  SortBy = signal<string>('brand');
+  SortOrder = signal<'asc' | 'desc' | undefined>('asc');
 
   loading = signal(false);
   error = signal<string | null>(null);
@@ -82,29 +83,30 @@ export class CatalogueComponent implements OnInit {
 
   
   ngOnInit(): void {
-    this.uiBrandId.set(this.brandId());
-    this.uiModelId.set(this.modelId());
-    this.uiSortBy.set(this.sortBy());
-    this.uiSortOrder.set(this.sortOrder());
+    this.filterBrandId.set(this.brandId());
+    this.filterModelId.set(this.modelId());
+    this.SortBy.set(this.sortBy());
+    this.SortOrder.set(this.sortOrder());
 
     this.loadBrands();
     this.loadCars(1);
   }
 
   clearFilters(): void {
-    this.uiBrandId.set(undefined);
-    this.uiModelId.set(undefined);
-    this.uiSortBy.set('brand');
-    this.uiSortOrder.set('asc');
+    this.filterBrandId.set(undefined);
+    this.filterModelId.set(undefined);
+    this.filterModels.set([]);
+    this.SortBy.set('brand');
+    this.SortOrder.set('asc');
 
     this.applyFilters();
   }
 
   applyFilters(): void {
-    this.brandId.set(this.uiBrandId());
-    this.modelId.set(this.uiModelId());
-    this.sortBy.set(this.uiSortBy());
-    this.sortOrder.set(this.uiSortOrder());
+    this.brandId.set(this.filterBrandId());
+    this.modelId.set(this.filterModelId());
+    this.sortBy.set(this.SortBy());
+    this.sortOrder.set(this.SortOrder());
 
     // when filters change, reset to first page
     this.loadCars(1);
@@ -178,6 +180,24 @@ export class CatalogueComponent implements OnInit {
       },
     });
     console.log("brand models:",this.models)
+  }
+  onFilterBrandChange(brandId?: string): void {
+    this.filterBrandId.set(brandId);
+    this.filterModelId.set(undefined);
+    console.log(brandId);
+
+    if (!brandId) {
+      this.filterModels.set([]);
+      return;
+    }
+    this.brandService.getBrandModels(brandId).subscribe({
+      next: (models) => this.filterModels.set(models),
+      error: (e) => {
+        console.error('Error cargando modelos para la marca', brandId, e);
+        this.filterModels.set([]);
+      }
+    });
+    console.log(this.filterModels());
   }
 
   openCreateModal(): void {

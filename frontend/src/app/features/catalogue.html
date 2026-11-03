@@ -212,30 +212,38 @@
           <h2>Filtros</h2>
             <label>
               Marca:
-              <input
-                type="text"
-                #brandInput
-                [value]="uiBrandId() ?? ''"
-                (input)="uiBrandId.set(brandInput.value || undefined)"
-              />
+              <select
+                #brandSelect
+                [value]="filterBrandId() ?? ''"
+                (change)="onFilterBrandChange(brandSelect.value || undefined)"
+              >
+                <option value="">Todas</option>
+                @for (brand of brands(); track brand.id) {
+                  <option [value]="brand.id">{{ brand.name }}</option>
+                }
+              </select>
             </label>
 
             <label>
               Modelo:
-              <input
-                type="text"
-                #brandInput
-                [value]="uiModelId() ?? ''"
-                (input)="uiModelId.set(brandInput.value || undefined)"
-              />
+              <select
+                #ModelSelect
+                [value]="filterModelId() ?? ''"
+                (change)="filterModelId.set(ModelSelect.value || undefined)"
+              >
+                <option value="">Todos</option>
+                @for (model of filterModels() || []; track model.id) {
+                  <option [value]="model.id">{{ model.name }}</option>
+                }
+              </select>
             </label>
 
             <label>
               Ordenar por:
               <select
                 #sortBySelect
-                [value]="uiSortBy()"
-                (change)="uiSortBy.set(sortBySelect.value)"
+                [value]="SortBy()"
+                (change)="SortBy.set(sortBySelect.value)"
               >
                 <option value="brand">Marca</option>
                 <option value="model">Modelo</option>
@@ -247,8 +255,8 @@
               En orden:
               <select
                 #orderBySelect
-                [value]="uiSortOrder()"
-                (change)="uiSortOrder.set(
+                [value]="SortOrder()"
+                (change)="SortOrder.set(
                   orderBySelect.value === 'asc' || orderBySelect.value === 'desc'
                     ? orderBySelect.value
                     : undefined
