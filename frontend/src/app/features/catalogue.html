@@ -215,7 +215,7 @@
               <select
                 #brandSelect
                 [value]="filterBrandId() ?? ''"
-                (change)="filterBrandId.set(brandSelect.value || undefined)"
+                (change)="onFilterBrandChange(brandSelect.value || undefined)"
               >
                 <option value="">Todas</option>
                 @for (brand of brands(); track brand.id) {
@@ -226,12 +226,16 @@
 
             <label>
               Modelo:
-              <input
-                type="text"
-                #brandInput
+              <select
+                #ModelSelect
                 [value]="filterModelId() ?? ''"
-                (input)="filterModelId.set(brandInput.value || undefined)"
-              />
+                (change)="filterModelId.set(ModelSelect.value || undefined)"
+              >
+                <option value="">Todos</option>
+                @for (model of filterModels() || []; track model.id) {
+                  <option [value]="model.id">{{ model.name }}</option>
+                }
+              </select>
             </label>
 
             <label>

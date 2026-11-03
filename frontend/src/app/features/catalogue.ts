@@ -38,6 +38,7 @@ export class CatalogueComponent implements OnInit {
   sortOrder = signal<'asc' | 'desc' | undefined>('asc');
   //selección temporal antes de aplicar filtro
   filterBrandId = signal<string | undefined>(undefined);
+  filterModels = signal<Model[] | undefined>(undefined);
   filterModelId = signal<string | undefined>(undefined);
   SortBy = signal<string>('brand');
   SortOrder = signal<'asc' | 'desc' | undefined>('asc');
@@ -94,6 +95,7 @@ export class CatalogueComponent implements OnInit {
   clearFilters(): void {
     this.filterBrandId.set(undefined);
     this.filterModelId.set(undefined);
+    this.filterModels.set([]);
     this.SortBy.set('brand');
     this.SortOrder.set('asc');
 
@@ -105,8 +107,6 @@ export class CatalogueComponent implements OnInit {
     this.modelId.set(this.filterModelId());
     this.sortBy.set(this.SortBy());
     this.sortOrder.set(this.SortOrder());
-    console.log(this.filterBrandId());
-    console.log()
 
     // when filters change, reset to first page
     this.loadCars(1);
@@ -180,6 +180,24 @@ export class CatalogueComponent implements OnInit {
       },
     });
     console.log("brand models:",this.models)
+  }
+  onFilterBrandChange(brandId?: string): void {
+    this.filterBrandId.set(brandId);
+    this.filterModelId.set(undefined);
+    console.log(brandId);
+
+    if (!brandId) {
+      this.filterModels.set([]);
+      return;
+    }
+    this.brandService.getBrandModels(brandId).subscribe({
+      next: (models) => this.filterModels.set(models),
+      error: (e) => {
+        console.error('Error cargando modelos para la marca', brandId, e);
+        this.filterModels.set([]);
+      }
+    });
+    console.log(this.filterModels());
   }
 
   openCreateModal(): void {
