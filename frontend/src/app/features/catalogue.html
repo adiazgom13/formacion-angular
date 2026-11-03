@@ -351,8 +351,7 @@
           </div>
         }
       </div>
-
-      @if (!loading() && !error() && totalPages() > 1){
+      @if (!loading() && !error()){
         <footer class="catalogue-card-footer">
           <div class="pagination-info">
             Mostrando
@@ -360,29 +359,33 @@
             <strong>{{ totalItems() }}</strong> coches
           </div>
 
-          <div class="pagination-controls">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              (click)="prevPage()"
-              [disabled]="!hasPreviousPage()"
-            >
-              Anterior
-            </button>
+          <button type="button" class="btn btn-secondary" (click)="exportCars()">Exportar Excel</button>
+          @if(totalPages() > 1)
+          {          
+            <div class="pagination-controls">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="prevPage()"
+                [disabled]="!hasPreviousPage()"
+              >
+                Anterior
+              </button>
 
-            <span class="pagination-page">
-              Página {{ currentPage() }} / {{ totalPages() }}
-            </span>
+              <span class="pagination-page">
+                Página {{ currentPage() }} / {{ totalPages() }}
+              </span>
 
-            <button
-              type="button"
-              class="btn btn-secondary"
-              (click)="nextPage()"
-              [disabled]="!hasNextPage()"
-            >
-              Siguiente
-            </button>
-          </div>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="nextPage()"
+                [disabled]="!hasNextPage()"
+              >
+                Siguiente
+              </button>
+            </div>
+          }
         </footer>
       }
     </section>

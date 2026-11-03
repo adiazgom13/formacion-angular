@@ -112,6 +112,32 @@ export class CatalogueComponent implements OnInit {
     this.loadCars(1);
   }
 
+  exportCars(): void {
+    const options = {
+      page: this.currentPage(),
+      limit: this.itemsPerPage() || 10,
+      brandId: this.brandId(),
+      modelId: this.modelId(),
+      sortBy: this.sortBy(),
+      sortOrder: this.sortOrder(),
+    };
+
+      this.carsService.ExportCarTable(options).subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'cars.xlsx';
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (e: AppError) => {
+          console.error('Error exporting cars to Excel', e);
+          this.error.set(e.userMessage);
+        },
+      });
+  }
+  
   private loadBrands(): void {
     this.brandService.getBrands().subscribe({
       next: (brands) => this.brands.set(brands),
