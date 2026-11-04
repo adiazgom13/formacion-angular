@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../shared/navbar/navbar';
 import { CarsService } from '../core/services/car.service';
 import { Car, Brand,Model, CarDetails, CarsResponse, CarsMeta } from '../core/interfaces/cars.interface';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { BrandService } from '../core/services/brand.service';
 import { FormsModule } from '@angular/forms';
 import { AppError } from '../core/errors/app-error.model';
@@ -21,6 +21,7 @@ export class CatalogueComponent implements OnInit {
   private carsService = inject(CarsService);
   private brandService = inject(BrandService);
   private router = inject(Router)
+  private route = inject(ActivatedRoute);
   //notificaciones toast
   //private toast = inject(ToastService);
   private auth = inject(AuthService);
@@ -83,13 +84,30 @@ export class CatalogueComponent implements OnInit {
 
   
   ngOnInit(): void {
-    this.filterBrandId.set(this.brandId());
-    this.filterModelId.set(this.modelId());
-    this.SortBy.set(this.sortBy());
-    this.SortOrder.set(this.sortOrder());
+  this.loadBrands();
 
-    this.loadBrands();
-    this.loadCars(1);
+  this.route.queryParams.subscribe((params) => {
+      const brandId = params['brandId'] || undefined;
+      const modelId = params['modelId'] || undefined;
+      const sortBy = params['sortBy'] || 'brand';
+      const sortOrder = (params['sortOrder'] as 'asc' | 'desc') || 'asc';
+      const page = Number(params['page'] || 1);
+
+      this.brandId.set(brandId);
+      this.modelId.set(modelId);
+      this.sortBy.set(sortBy);
+      this.sortOrder.set(sortOrder);
+
+      this.filterBrandId.set(brandId);
+      this.filterModelId.set(modelId);
+      this.SortBy.set(sortBy);
+      this.SortOrder.set(sortOrder);
+
+      if (brandId) {
+        this.onFilterBrandChange(brandId);
+      }
+      this.loadCars(page);
+    });
   }
 
   clearFilters(): void {
@@ -99,17 +117,28 @@ export class CatalogueComponent implements OnInit {
     this.SortBy.set('brand');
     this.SortOrder.set('asc');
 
-    this.applyFilters();
+    this.router.navigate([], {
+      queryParams: {
+        brandId: null,
+        modelId: null,
+        sortBy: 'brand',
+        sortOrder: 'asc',
+        page: 1,
+      },
+    });
   }
 
   applyFilters(): void {
-    this.brandId.set(this.filterBrandId());
-    this.modelId.set(this.filterModelId());
-    this.sortBy.set(this.SortBy());
-    this.sortOrder.set(this.SortOrder());
-
-    // when filters change, reset to first page
-    this.loadCars(1);
+    this.router.navigate([], {
+      queryParams: {
+        brandId: this.filterBrandId() || null,
+        modelId: this.filterModelId() || null,
+        sortBy: this.SortBy(),
+        sortOrder: this.SortOrder(),
+        page: 1,
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 
   exportCars(): void {
