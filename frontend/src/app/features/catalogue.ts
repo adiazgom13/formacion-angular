@@ -207,13 +207,19 @@ export class CatalogueComponent implements OnInit {
   
   nextPage(): void {
     if (this.hasNextPage()) {
-      this.loadCars(this.currentPage() + 1);
+      this.router.navigate([], {
+        queryParams: { page: this.currentPage() + 1 },
+        queryParamsHandling: 'merge',
+      });
     }
   }
 
   prevPage(): void {
     if (this.hasPreviousPage()) {
-      this.loadCars(this.currentPage() - 1);
+      this.router.navigate([], {
+        queryParams: { page: this.currentPage() - 1 },
+        queryParamsHandling: 'merge',
+      });
     }
   }
 
