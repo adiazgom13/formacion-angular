@@ -9,7 +9,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'home', component: HomeComponent },
   { path: 'catalogue', component: CatalogueComponent},
-  { path: 'catalogue/brands', component: BrandsComponent},
+  { path: 'brands', component: BrandsComponent},
   { path: 'car/:id', component: CarComponent },
   { path: '', redirectTo: 'home', pathMatch: 'full' }, // optional: make / go to /home
   { path: '**', redirectTo: 'home' },                  // optional: wildcard to /home
