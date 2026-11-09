@@ -21,6 +21,7 @@
       @else {
         <section class="home-card">
           <section class="car-list">
+            <div class="home-row">
             <h2>Lista de coches</h2>
 
             @for (car of cars; track car.id) {
@@ -29,6 +30,7 @@
                 <h2 class="car-name">{{ car.brand.name }} {{ car.model.name }}</h2>
               </div>
             }
+            </div>
           </section>
         </section>
       }

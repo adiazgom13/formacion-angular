@@ -31,6 +31,12 @@
   font-size: 0.95rem;
 }
 
+.home-row{
+  display: flex;
+  gap: 24px;
+  align-items: center; 
+}
+
 .home-card {
   background-color: #fff;
   border-radius: 10px;
