@@ -58,9 +58,8 @@
   border-radius: 8px;
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
   cursor: pointer;
-  overflow: hidden;
   transition: box-shadow 0.3s ease-in-out;
-  background-color: #fff;
+  background-color: #74b6e2;
 }
 
 .car-card:hover {
@@ -78,7 +77,6 @@
   text-align: center;
   font-weight: 600;
   font-size: 1rem;
-  margin: 12px 8px;
 }
 
 .loading-overlay {
@@ -92,4 +90,13 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+}
+
+.pager-btn{
+  cursor: pointer;
+}
+
+.pager-btn:disabled{
+  cursor: not-allowed;
+  opacity: 0.2;
 }

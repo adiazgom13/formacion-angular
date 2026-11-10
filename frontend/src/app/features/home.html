@@ -22,14 +22,24 @@
         <section class="home-card">
           <section class="car-list">
             <div class="home-row">
-            <h2>Lista de coches</h2>
-
-            @for (car of cars; track car.id) {
-              <div class="car-card" (click)="goToCar(car.id)">
-                <img src="{{ car.imageUrl }}" alt="{{ car.model }}" class="car-image" />
-                <h2 class="car-name">{{ car.brand.name }} {{ car.model.name }}</h2>
-              </div>
-            }
+              <h2>Lista de coches</h2>            
+                <button
+                class="pager-btn"
+                (click)="prevPage()"
+                [disabled]="!(meta()?.hasPreviousPage)"
+                > ← </button>
+                @for (car of cars; track car.id) {
+                  <div class="car-card" (click)="goToCar(car.id)">
+                    <img src="{{ car.imageUrl }}" alt="{{ car.model }}" class="car-image" />
+                    <h2 class="car-name"> {{ car.brand.name }} </h2>
+                    <h2 class="car-name"> {{ car.model.name }} </h2>
+                  </div>
+                }
+                <button
+                  class="pager-btn"
+                  (click)="nextPage()"
+                  [disabled]="!(meta()?.hasNextPage)"
+                  > → </button>
             </div>
           </section>
         </section>
