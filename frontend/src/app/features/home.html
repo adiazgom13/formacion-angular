@@ -1,7 +1,52 @@
 <header>
   <app-navbar></app-navbar>
-  <h1>Home Page</h1>
-  
 </header>
+
+<div class="home-page">
+  <div class="home-container">
+    <header class="home-header">
+      <h1 class="home-title">Inicio</h1>
+      <p class="home-subtitle">
+        Lista de coches disponibles en nuestro catálogo. Haga clic en un coche para ver más detalles.
+      </p>
+      @if (loading()) {
+        <p>Cargando coches...</p>
+      }
+      @else if (loadError) {
+        <p>Error al cargar la lista de coches.</p>
+      }
+      @else if (cars.length === 0) {
+        <p>No hay coches para mostrar.</p>
+      }
+      @else {
+        <section class="home-card">
+          <section class="car-list">
+            <div class="home-row">
+              <h2>Lista de coches</h2>            
+                <button
+                class="pager-btn"
+                (click)="prevPage()"
+                [disabled]="!(meta()?.hasPreviousPage)"
+                > ← </button>
+                @for (car of cars; track car.id) {
+                  <div class="car-card" (click)="goToCar(car.id)">
+                    <img src="{{ car.imageUrl }}" alt="{{ car.model }}" class="car-image" />
+                    <h2 class="car-name"> {{ car.brand.name }} </h2>
+                    <h2 class="car-name"> {{ car.model.name }} </h2>
+                  </div>
+                }
+                <button
+                  class="pager-btn"
+                  (click)="nextPage()"
+                  [disabled]="!(meta()?.hasNextPage)"
+                  > → </button>
+            </div>
+          </section>
+        </section>
+      }
+    </header>
+  </div>
+</div>
+
 
 <router-outlet />
