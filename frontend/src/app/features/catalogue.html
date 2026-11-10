@@ -157,7 +157,7 @@
           type="button"
           class="btn btn-secondary"
           (click)="submitCar()"
-          [disabled]="createLoading()"
+          [disabled]="loading()"
         >
           @if (modalMode() === 'create') { Añadir } @else { Guardar cambios }
         </button>
@@ -166,7 +166,7 @@
         type="button"
         class="btn btn-secondary"
         (click)="closeCreateModal()"
-        [disabled]="createLoading()"
+        [disabled]="loading()"
         >
           Cancelar
         </button>

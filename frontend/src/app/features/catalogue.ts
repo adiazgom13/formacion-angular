@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { AppError } from '../core/errors/app-error.model';
 //import { ToastService } from '../core/services/toast.service';
 import { AuthService } from '../core/services/auth.service';
+import { LoadingService } from '../core/services/loading.service';
 
 @Component({
   selector: 'app-catalogue',
@@ -25,6 +26,8 @@ export class CatalogueComponent implements OnInit {
   //notificaciones toast
   //private toast = inject(ToastService);
   private auth = inject(AuthService);
+  private readonly loadingService = inject(LoadingService);
+  readonly loading = this.loadingService.loading;
 
   cars = signal<Car[]>([]);
   car = signal<Car | null>(null);
@@ -44,11 +47,11 @@ export class CatalogueComponent implements OnInit {
   SortBy = signal<string>('brand');
   SortOrder = signal<'asc' | 'desc' | undefined>('asc');
 
-  loading = signal(false);
+  
   error = signal<string | null>(null);
 
   createModalOpen = signal(false);
-  createLoading = signal(false);
+ 
   createError = signal<string | null>(null);
 
   totalItems = computed(() => this.meta()?.totalItems ?? 0);
@@ -58,6 +61,7 @@ export class CatalogueComponent implements OnInit {
   hasNextPage = computed(() => this.meta()?.hasNextPage ?? false);
   hasPreviousPage = computed(() => this.meta()?.hasPreviousPage ?? false);
   readonly isAdmin = computed(() => this.auth.user()?.role === 'ADMIN');
+  
 
   newCarBrandId = signal<string>('');
   newCarModelId = signal<string>('');
@@ -178,7 +182,7 @@ export class CatalogueComponent implements OnInit {
   }
 
   loadCars(page: number): void {
-    this.loading.set(true);
+    this.loadingService.start();
     this.error.set(null);
 
     this.carsService
@@ -194,12 +198,12 @@ export class CatalogueComponent implements OnInit {
         next: (res: CarsResponse) => {
           this.cars.set(res.items);
           this.meta.set(res.meta); 
-          this.loading.set(false);
+          this.loadingService.stop();
         },
         error: (e: AppError) => {
           console.error('error cargando lista de coches', e);
           this.error.set(e.userMessage);
-          this.loading.set(false);
+          this.loadingService.stop();
         },
       });
   }
@@ -278,7 +282,7 @@ export class CatalogueComponent implements OnInit {
     this.newCarLicensePlate.set('');
 
     this.createError.set(null);
-    this.createLoading.set(false);
+    this.loadingService.stop();
 
     this.createModalOpen.set(true);
   }
@@ -288,7 +292,7 @@ export class CatalogueComponent implements OnInit {
     this.modalMode.set('edit');
     this.editingCarId.set(car.id);
     this.createError.set(null);
-    this.createLoading.set(true);
+    this.loadingService.start();
 
     this.carsService.getCarById(car.id).subscribe({
     next: (fullCar: Car) => {
@@ -328,13 +332,13 @@ export class CatalogueComponent implements OnInit {
       this.newCarDescription.set(d?.description ?? '');
       this.newCarLicensePlate.set(d?.licensePlate ?? '');
 
-      this.createLoading.set(false);
+      this.loadingService.stop();
       this.createModalOpen.set(true);
     },
     error: (e: AppError) => {
       console.error('Error editando coche con el id ', car.id, e);
       this.error.set(e.userMessage);
-      this.createLoading.set(false);
+      this.loadingService.stop();
       this.createError.set('Error editando coche');
       this.createModalOpen.set(true);
     },
@@ -346,7 +350,7 @@ export class CatalogueComponent implements OnInit {
 
   createCar(): void {
 
-    this.createLoading.set(true);
+    this.loadingService.start();
     this.createError.set(null);
 
     const registrationDate =new Date(this.newCarRegistrationDate()).toISOString()
@@ -371,14 +375,14 @@ export class CatalogueComponent implements OnInit {
 
     this.carsService.postCar(payload).subscribe({
       next: () => {
-        this.createLoading.set(false);
+        this.loadingService.stop();
         this.closeCreateModal();
         this.loadCars(1);
       },
       error: (e: AppError) => {
         console.error('Error creando coche', e);
         this.error.set(e.userMessage);
-        this.createLoading.set(false);
+        this.loadingService.stop();
         this.createError.set('Error creando el coche');
       },
     });
@@ -390,7 +394,7 @@ export class CatalogueComponent implements OnInit {
       return;
     }
 
-    this.createLoading.set(true);
+    this.loadingService.start();
     this.createError.set(null);
 
     const registrationDate = new Date(this.newCarRegistrationDate()).toISOString();
@@ -415,7 +419,7 @@ export class CatalogueComponent implements OnInit {
 
     this.carsService.updateCar(id, payload).subscribe({
       next: () => {
-        this.createLoading.set(false);
+        this.loadingService.stop();
         this.closeCreateModal();
         // recargar lista (puede ser currentPage o 1)
         this.loadCars(this.currentPage());
@@ -423,7 +427,7 @@ export class CatalogueComponent implements OnInit {
       error: (e: AppError) => {
         console.error('Error actualizando el coche', this.car()?.id, e);
         this.error.set(e.userMessage);
-        this.createLoading.set(false);
+        this.loadingService.stop();
         this.createError.set('Error actualizando el coche');
       },
     });
