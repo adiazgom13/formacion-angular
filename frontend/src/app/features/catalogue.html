@@ -155,9 +155,9 @@
         </div>
         <button
           type="button"
-          class="btn btn-secondary"
+          class="btn btn-primary"
           (click)="submitCar()"
-          [disabled]="createLoading()"
+          [disabled]="loading()"
         >
           @if (modalMode() === 'create') { Añadir } @else { Guardar cambios }
         </button>
@@ -166,7 +166,7 @@
         type="button"
         class="btn btn-secondary"
         (click)="closeCreateModal()"
-        [disabled]="createLoading()"
+        [disabled]="loading()"
         >
           Cancelar
         </button>
@@ -267,7 +267,7 @@
               </select>
             </label>
 
-            <button type="button" class="btn btn-secondary" (click)="applyFilters()">Aplicar filtros</button>
+            <button type="button" class="btn btn-primary" (click)="applyFilters()">Aplicar filtros</button>
             <button type="button" class="btn btn-secondary" (click)="clearFilters()">Limpiar</button>
                   </div>
       </div>
