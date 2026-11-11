@@ -164,13 +164,6 @@
   color: #111827;
 }
 
-.price-currency {
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-left: 4px;
-  color: #4b5563;
-}
-
 .car-quick-info {
   display: flex;
   gap: 16px;
@@ -366,12 +359,6 @@
   margin: 0 0 6px;
   color: #111827;
   font-size: 0.9rem;
-}
-
-.car-document-panel__form h3 {
-  margin: 12px 0 8px;
-  font-size: 1rem;
-  color: #111827;
 }
 
 .car-document-panel__error {
