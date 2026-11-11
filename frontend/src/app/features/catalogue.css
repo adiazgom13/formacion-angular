@@ -205,26 +205,7 @@
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
 }
 
-.btn-danger {
-  background-color: #ef4444;
-  color: #ffffff;
-}
-
-.btn-danger:hover:not(:disabled) {
-  background-color: #dc2626;
-  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
-}
-
-/* Grupo de acciones */
-
-.actions-group {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
 /* Footer de la card (paginación) */
-
 .catalogue-card-footer {
   margin-top: 12px;
   padding-top: 10px;
@@ -253,7 +234,6 @@
 }
 
 /* Responsive básico */
-
 @media (max-width: 768px) {
   .catalogue-header {
     flex-direction: column;
@@ -312,12 +292,6 @@
 .modal-field label {
   font-weight: 600;
   margin-bottom: 0.25rem;
-}
-
-.modal-field--inline {
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .modal-actions {
