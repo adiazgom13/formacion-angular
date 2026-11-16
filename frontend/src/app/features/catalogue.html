@@ -30,7 +30,7 @@
             [ngModel]="newCarBrandId()"
             (ngModelChange)="onNewCarBrandChange($event)"
           >
-            <option [ngValue]="''"></option>
+            <option [ngValue]="''" disabled>Selecciona una marca</option>
             @for (brand of brands(); track brand.id) {
               <option [ngValue]="brand.id">{{ brand.name }}</option>
             }
@@ -48,7 +48,7 @@
               (ngModelChange)="newCarModelId.set($event)"
               [disabled]="!newCarBrandId() || models().length === 0"
             >
-              <option [ngValue]="''"></option>
+              <option [ngValue]="''" disabled>Selecciona un modelo</option>
               @for (model of models(); track model.id) {
                 <option [ngValue]="model.id">{{ model.name }}</option>
               }
@@ -74,6 +74,7 @@
           <input
             type="number"
             name="mileage"
+            placeholder="0"
             [ngModel]="newCarMileage()"
             (ngModelChange)="newCarMileage.set($event === '' || $event == null ? null : +$event)"
           />
@@ -87,6 +88,7 @@
           <input
             type="number"
             name="price"
+            placeholder="0"
             [ngModel]="newCarPrice()"
             (ngModelChange)="newCarPrice.set($event === '' || $event == null ? null : +$event)"
           />
@@ -101,6 +103,7 @@
             type="number"
             min="1900"
             name="manufactureYear"
+            placeholder="1900"
             [ngModel]="newCarManufactureYear()"
             (ngModelChange)="newCarManufactureYear.set($event === '' || $event == null ? null : +$event)"
           />
@@ -137,6 +140,7 @@
           <input
             type="text"
             name="color"
+            placeholder="Blanco"
             [ngModel]="newCarColor()"
             (ngModelChange)="newCarColor.set($event)"
           />
@@ -148,6 +152,7 @@
           
           <textarea
             name="description"
+            placeholder="Descripción del coche"
             [ngModel]="newCarDescription()"
             (ngModelChange)="newCarDescription.set($event)"
           ></textarea>
@@ -162,6 +167,7 @@
           <input
             type="text"
             name="licensePlate"
+            placeholder="1234 BBB"
             required
             [ngModel]="newCarLicensePlate()"
             (ngModelChange)="newCarLicensePlate.set($event)"
