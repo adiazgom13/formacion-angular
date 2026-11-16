@@ -10,6 +10,7 @@ import { AppError } from '../core/errors/app-error.model';
 //import { ToastService } from '../core/services/toast.service';
 import { AuthService } from '../core/services/auth.service';
 import { LoadingService } from '../core/services/loading.service';
+import { finalize, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-catalogue',
@@ -28,6 +29,7 @@ export class CatalogueComponent implements OnInit {
   private auth = inject(AuthService);
   private readonly loadingService = inject(LoadingService);
   readonly loading = this.loadingService.loading;
+  private modelsSubscription?: Subscription;
 
   cars = signal<Car[]>([]);
   car = signal<Car | null>(null);
@@ -267,6 +269,8 @@ export class CatalogueComponent implements OnInit {
   }
 
   onNewCarBrandChange(brandId: string): void {
+    this.modelsSubscription?.unsubscribe();
+
     this.newCarBrandId.set(brandId);
     this.newCarModelId.set('');    
     this.models.set([]);          
@@ -275,7 +279,11 @@ export class CatalogueComponent implements OnInit {
       return;
     }
 
-    this.brandService.getBrandModels(brandId).subscribe({
+    this.loadingService.start();
+
+    this.brandService.getBrandModels(brandId).pipe(
+    finalize(() => this.loadingService.stop())
+    ).subscribe({
       next: (models) => 
         this.models.set(models),
       error: (e: AppError)  => {
@@ -306,7 +314,6 @@ export class CatalogueComponent implements OnInit {
 
   openCreateModal(): void {
     this.carSubmitted.set(false);
-
     this.modalMode.set('create');
     this.editingCarId.set(null);
     this.newCarBrandId.set('');
@@ -320,10 +327,7 @@ export class CatalogueComponent implements OnInit {
     this.newCarColor.set('');
     this.newCarDescription.set('');
     this.newCarLicensePlate.set('');
-
     this.createError.set(null);
-    this.loadingService.stop();
-
     this.createModalOpen.set(true);
   }
 
@@ -386,6 +390,7 @@ export class CatalogueComponent implements OnInit {
   });
   }
   closeCreateModal(): void {
+    this.modelsSubscription?.unsubscribe();
     this.carSubmitted.set(false);
     this.createModalOpen.set(false);
   }
