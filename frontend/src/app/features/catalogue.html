@@ -21,6 +21,9 @@
       
       <form>
         <label>Marca *</label>
+        @if (carSubmitted() && carFormErrors().brand) {
+          <p class="modal-error">{{ carFormErrors().brand }}</p>
+        }
         <div class="modal-field">
           <select
             name="brandId"
@@ -32,10 +35,12 @@
               <option [ngValue]="brand.id">{{ brand.name }}</option>
             }
           </select>
-
         </div>
 
         <label>Modelo *</label>
+        @if (carSubmitted() && carFormErrors().model) {
+          <p class="modal-error">{{ carFormErrors().model }}</p>
+        }
         <div class="modal-field">
             <select
               name="modelId"
@@ -62,8 +67,10 @@
         </div>
 
         <label>Kilometraje *</label>
+        @if (carSubmitted() && carFormErrors().mileage) {
+         <p class="modal-error">{{ carFormErrors().mileage }}</p>
+        }
         <div class="modal-field">
-          
           <input
             type="number"
             name="mileage"
@@ -73,8 +80,10 @@
         </div>
 
         <label>Precio *</label>
-        <div class="modal-field">
-          
+        @if (carSubmitted() && carFormErrors().price) {
+          <p class="modal-error">{{ carFormErrors().price }}</p>
+        }
+        <div class="modal-field">    
           <input
             type="number"
             name="price"
@@ -84,8 +93,10 @@
         </div>
 
         <label>Año fabricación *</label>
-        <div class="modal-field">
-          
+        @if (carSubmitted() && carFormErrors().year) {
+          <p class="modal-error">{{ carFormErrors().year }}</p>
+        }
+        <div class="modal-field">    
           <input
             type="number"
             min="1900"
@@ -143,12 +154,15 @@
         </div>
 
         
-        <label>Matrícula</label>
+        <label>Matrícula *</label>
+        @if (carSubmitted() && carFormErrors().licensePlate) {
+          <p class="modal-error">{{ carFormErrors().licensePlate }}</p>
+        }
         <div class="modal-field">
-          
           <input
             type="text"
             name="licensePlate"
+            required
             [ngModel]="newCarLicensePlate()"
             (ngModelChange)="newCarLicensePlate.set($event)"
           />

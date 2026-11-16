@@ -74,6 +74,45 @@ export class CatalogueComponent implements OnInit {
   newCarColor = signal<string>('');
   newCarDescription = signal<string>('');
   newCarLicensePlate = signal<string>('');
+  carSubmitted = signal<boolean>(false);
+
+  readonly carFormErrors = computed(() => {
+    const mileage = this.newCarMileage();
+    const price = this.newCarPrice();
+    const year = this.newCarManufactureYear();
+    const licensePlate = this.newCarLicensePlate();
+
+    return {
+      brand: this.newCarBrandId() ? '' : 'Selecciona una marca.',
+      model: this.newCarModelId() ? '' : 'Selecciona un modelo.',
+      mileage:
+        mileage === null
+          ? 'Introduce el kilometraje.'
+          : Number.isNaN(mileage) || mileage < 0
+            ? 'El kilometraje debe ser mayor o igual que 0.'
+            : '',
+      price:
+        price === null
+          ? 'Introduce el precio.'
+          : Number.isNaN(price) || price <= 0
+            ? 'El precio debe ser mayor que 0.'
+            : '',
+      year:
+        year === null
+          ? 'Introduce el año de fabricación.'
+          : Number.isNaN(year) || year < 1900
+            ? 'El año de fabricación debe ser mayor o igual que 1900.'
+            : '',
+      licensePlate: 
+        !licensePlate || !/^[0-9]{4}[A-Z]{3}$/.test(licensePlate)
+          ? 'La matrícula debe tener el formato 4 números y 3 letras.'
+          : '',
+    };
+  });
+
+  readonly isCarFormValid = computed(() =>
+    Object.values(this.carFormErrors()).every((error) => !error)
+  );
 
   detail = computed<CarDetails | null>(() => {
     const c = this.car();
@@ -266,6 +305,7 @@ export class CatalogueComponent implements OnInit {
   }
 
   openCreateModal(): void {
+    this.carSubmitted.set(false);
 
     this.modalMode.set('create');
     this.editingCarId.set(null);
@@ -288,6 +328,7 @@ export class CatalogueComponent implements OnInit {
   }
 
     openEditModal(car: Car): void {
+    this.carSubmitted.set(false);
 
     this.modalMode.set('edit');
     this.editingCarId.set(car.id);
@@ -345,6 +386,7 @@ export class CatalogueComponent implements OnInit {
   });
   }
   closeCreateModal(): void {
+    this.carSubmitted.set(false);
     this.createModalOpen.set(false);
   }
 
@@ -353,7 +395,9 @@ export class CatalogueComponent implements OnInit {
     this.loadingService.start();
     this.createError.set(null);
 
-    const registrationDate =new Date(this.newCarRegistrationDate()).toISOString()
+    const registrationDateValue = this.newCarRegistrationDate();
+    const registrationDate = registrationDateValue ? new Date(registrationDateValue) : new Date();
+    const registrationDateISOString = registrationDate.toISOString();
 
     const payload = {
       brandId: this.newCarBrandId(),
@@ -366,7 +410,7 @@ export class CatalogueComponent implements OnInit {
           manufactureYear: this.newCarManufactureYear() ?? 0,
           mileage: this.newCarMileage() ?? 0,
           price: this.newCarPrice() ?? 0,
-          registrationDate: registrationDate,
+          registrationDate: registrationDateISOString,
           color: this.newCarColor(),
           description: this.newCarDescription(),
         },
@@ -397,7 +441,9 @@ export class CatalogueComponent implements OnInit {
     this.loadingService.start();
     this.createError.set(null);
 
-    const registrationDate = new Date(this.newCarRegistrationDate()).toISOString();
+    const registrationDateValue = this.newCarRegistrationDate();
+    const registrationDate = registrationDateValue ? new Date(registrationDateValue) : new Date();
+    const registrationDateISOString = registrationDate.toISOString();
 
     const payload = {
       brandId: this.newCarBrandId(),
@@ -410,7 +456,7 @@ export class CatalogueComponent implements OnInit {
           manufactureYear: this.newCarManufactureYear() ?? 0,
           mileage: this.newCarMileage() ?? 0,
           price: this.newCarPrice() ?? 0,
-          registrationDate,
+          registrationDate: registrationDateISOString,
           color: this.newCarColor(),
           description: this.newCarDescription(),
         },
@@ -434,12 +480,15 @@ export class CatalogueComponent implements OnInit {
   }
   
   submitCar(): void {
-    if (this.modalMode() === 'create') {
-      this.createCar();
+    this.carSubmitted.set(true);
+
+    if (!this.isCarFormValid()) {
       return;
     }
-    else{
-      console.log('edit car id:', this.editingCarId());
+
+    if (this.modalMode() === 'create') {
+      this.createCar();
+    } else{
       this.updateCar()
     }
   }
