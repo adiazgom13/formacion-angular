@@ -121,7 +121,7 @@ export class CatalogueComponent implements OnInit {
             ? 'El año de fabricación debe ser mayor o igual que 1900.'
             : '',
       licensePlate: 
-        !licensePlate || !/^[0-9]{4}[A-Z]{3}$/.test(licensePlate)
+        !licensePlate || !/^[0-9]{4} ?[A-Z]{3}$/.test(licensePlate)
           ? 'La matrícula debe tener el formato 4 números y 3 letras.'
           : '',
     };
@@ -142,6 +142,12 @@ export class CatalogueComponent implements OnInit {
   modalMode = signal<'create' | 'edit'>('create');
   editingCarId = signal<string | null>(null);
 
+  private formatLicensePlate(value: string): string {
+    return value
+      .trim()
+      .toUpperCase()
+      .replace(/^([0-9]{4}) ?([BCDFGHJKLMNPRSTVWXYZ]{3})$/, '$1 $2');
+  }
   
   ngOnInit(): void {
   this.loadBrands();
@@ -426,7 +432,7 @@ export class CatalogueComponent implements OnInit {
         {
           availability: this.newCarAvailability(),
           currency: this.newCarCurrency(),
-          licensePlate: this.newCarLicensePlate(),
+          licensePlate: this.formatLicensePlate(this.newCarLicensePlate()),
           manufactureYear: this.newCarManufactureYear() ?? 0,
           mileage: this.newCarMileage() ?? 0,
           price: this.newCarPrice() ?? 0,
@@ -472,7 +478,7 @@ export class CatalogueComponent implements OnInit {
         {
           availability: this.newCarAvailability(),
           currency: this.newCarCurrency(),
-          licensePlate: this.newCarLicensePlate(),
+          licensePlate: this.formatLicensePlate(this.newCarLicensePlate()),
           manufactureYear: this.newCarManufactureYear() ?? 0,
           mileage: this.newCarMileage() ?? 0,
           price: this.newCarPrice() ?? 0,
