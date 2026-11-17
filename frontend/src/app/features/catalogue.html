@@ -110,17 +110,27 @@
         </div>
 
         <label>Moneda</label>
+        @if (carSubmitted() && carFormErrors().currency) {
+          <p class="modal-error">{{ carFormErrors().currency }}</p>
+        }
         <div class="modal-field">
-          
           <input
-            type="text"
+            id="currency"
             name="currency"
+            type="text"
+            list="currency-options"
             [ngModel]="newCarCurrency()"
-            (ngModelChange)="newCarCurrency.set($event)"
+            (ngModelChange)="newCarCurrency.set($event.toUpperCase())"
           />
-        </div>
 
-        <!-- Disponible -->
+          <datalist id="currency-options">
+            @for (currency of currencies; track currency) {
+              <option [value]="currency"></option>
+            }
+          </datalist>
+        </div>
+        
+
         <div>
           <label>
             <input

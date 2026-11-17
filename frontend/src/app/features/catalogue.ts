@@ -78,9 +78,21 @@ export class CatalogueComponent implements OnInit {
   newCarLicensePlate = signal<string>('');
   carSubmitted = signal<boolean>(false);
 
+  readonly currencies = [
+    'EUR', 'GBP', 'CHF', 'SEK', 'NOK', 'DKK', 'PLN', 'CZK',
+    'HUF', 'RON', 'BGN', 'HRK',
+    'ARS', 'BRL', 'CLP', 'COP', 'PEN', 'UYU', 'PYG', 'BOB', 'VES',
+    'USD', 'CAD', 'MXN',
+    'JPY', 'CNY', 'INR', 'KRW', 'SGD', 'HKD', 'MYR', 'IDR',
+    'THB', 'VND', 'PKR',
+    'AUD', 'NZD',
+    'ZAR', 'EGP', 'NGN', 'KES', 'GHS',
+  ];
+
   readonly carFormErrors = computed(() => {
     const mileage = this.newCarMileage();
     const price = this.newCarPrice();
+    const currency = this.newCarCurrency();
     const year = this.newCarManufactureYear();
     const licensePlate = this.newCarLicensePlate();
 
@@ -99,6 +111,9 @@ export class CatalogueComponent implements OnInit {
           : Number.isNaN(price) || price <= 0
             ? 'El precio debe ser mayor que 0.'
             : '',
+      currency: this.currencies.includes(currency)
+        ? ''
+        : 'Selecciona una moneda válida.',
       year:
         year === null
           ? 'Introduce el año de fabricación.'
