@@ -373,12 +373,17 @@
 
                 <label>
                   Tipo de documento *
-                  <input
-                    type="text"
-                    #attachTypeInput
-                    [value]="attachDocumentType()"
-                    (input)="attachDocumentType.set(attachTypeInput.value)"
-                  />
+                  <select
+                    #documentTypeSelect
+                    [value]="docDocumentType()"
+                    (change)="docDocumentType.set(documentTypeSelect.value)"
+                  >
+                    <option value="invoice">Factura</option>
+                    <option value="inspection">Inspección</option>
+                    <option value="insurance">Seguro</option>
+                    <option value="registration">Matriculación</option>
+                    <option value="other">Otro</option>
+                  </select>
                 </label>
 
                 <label class="car-document-panel__full">
@@ -390,9 +395,15 @@
                   ></textarea>
                 </label>
 
-                <label class="car-document-panel__full btn btn-secondary">
-                  Seleccionar archivo
+                <label class="car-document-panel__full btn btn-secondary car-document-panel__file">
+                  <span>Seleccionar archivo</span>
+
+                  <span>
+                    {{ docFile()?.name || 'Ningún archivo seleccionado' }}
+                  </span>
+
                   <input
+                    class="car-document-panel__file-input"
                     #fileInput
                     type="file"
                     accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg,application/pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg"

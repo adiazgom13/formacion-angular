@@ -388,12 +388,14 @@
 
 .car-document-panel__grid input[type='text'],
 .car-document-panel__grid textarea,
+.car-document-panel__grid select,
 .car-document-panel__grid input[type='file'] {
   width: 100%;
 }
 
 .car-document-panel__grid input[type='text'],
-.car-document-panel__grid textarea {
+.car-document-panel__grid textarea,
+.car-document-panel__grid select{
   padding: 8px 10px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
@@ -404,6 +406,24 @@
 .car-document-panel__grid textarea {
   min-height: 90px;
   resize: vertical;
+}
+
+.car-document-panel__grid .car-document-panel__file {
+  position: relative;
+  align-items: center;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.car-document-panel__grid input[type='file'].car-document-panel__file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .car-document-panel__full {
