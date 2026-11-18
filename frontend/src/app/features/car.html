@@ -373,12 +373,17 @@
 
                 <label>
                   Tipo de documento *
-                  <input
-                    type="text"
-                    #attachTypeInput
-                    [value]="attachDocumentType()"
-                    (input)="attachDocumentType.set(attachTypeInput.value)"
-                  />
+                  <select
+                    #documentTypeSelect
+                    [value]="docDocumentType()"
+                    (change)="docDocumentType.set(documentTypeSelect.value)"
+                  >
+                    <option value="invoice">Factura</option>
+                    <option value="inspection">Inspección</option>
+                    <option value="insurance">Seguro</option>
+                    <option value="registration">Matriculación</option>
+                    <option value="other">Otro</option>
+                  </select>
                 </label>
 
                 <label class="car-document-panel__full">
