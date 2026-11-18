@@ -408,6 +408,24 @@
   resize: vertical;
 }
 
+.car-document-panel__grid .car-document-panel__file {
+  position: relative;
+  align-items: center;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.car-document-panel__grid input[type='file'].car-document-panel__file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .car-document-panel__full {
   grid-column: 1 / -1;
 }
