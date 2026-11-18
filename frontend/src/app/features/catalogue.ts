@@ -10,6 +10,7 @@ import { AppError } from '../core/errors/app-error.model';
 //import { ToastService } from '../core/services/toast.service';
 import { AuthService } from '../core/services/auth.service';
 import { LoadingService } from '../core/services/loading.service';
+import { finalize, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-catalogue',
@@ -28,6 +29,7 @@ export class CatalogueComponent implements OnInit {
   private auth = inject(AuthService);
   private readonly loadingService = inject(LoadingService);
   readonly loading = this.loadingService.loading;
+  private modelsSubscription?: Subscription;
 
   cars = signal<Car[]>([]);
   car = signal<Car | null>(null);
@@ -76,9 +78,21 @@ export class CatalogueComponent implements OnInit {
   newCarLicensePlate = signal<string>('');
   carSubmitted = signal<boolean>(false);
 
+  readonly currencies = [
+    'EUR', 'GBP', 'CHF', 'SEK', 'NOK', 'DKK', 'PLN', 'CZK',
+    'HUF', 'RON', 'BGN', 'HRK',
+    'ARS', 'BRL', 'CLP', 'COP', 'PEN', 'UYU', 'PYG', 'BOB', 'VES',
+    'USD', 'CAD', 'MXN',
+    'JPY', 'CNY', 'INR', 'KRW', 'SGD', 'HKD', 'MYR', 'IDR',
+    'THB', 'VND', 'PKR',
+    'AUD', 'NZD',
+    'ZAR', 'EGP', 'NGN', 'KES', 'GHS',
+  ];
+
   readonly carFormErrors = computed(() => {
     const mileage = this.newCarMileage();
     const price = this.newCarPrice();
+    const currency = this.newCarCurrency();
     const year = this.newCarManufactureYear();
     const licensePlate = this.newCarLicensePlate();
 
@@ -97,6 +111,9 @@ export class CatalogueComponent implements OnInit {
           : Number.isNaN(price) || price <= 0
             ? 'El precio debe ser mayor que 0.'
             : '',
+      currency: this.currencies.includes(currency)
+        ? ''
+        : 'Selecciona una moneda válida.',
       year:
         year === null
           ? 'Introduce el año de fabricación.'
@@ -104,7 +121,7 @@ export class CatalogueComponent implements OnInit {
             ? 'El año de fabricación debe ser mayor o igual que 1900.'
             : '',
       licensePlate: 
-        !licensePlate || !/^[0-9]{4}[A-Z]{3}$/.test(licensePlate)
+        !licensePlate || !/^[0-9]{4} ?[A-Z]{3}$/.test(licensePlate)
           ? 'La matrícula debe tener el formato 4 números y 3 letras.'
           : '',
     };
@@ -125,6 +142,12 @@ export class CatalogueComponent implements OnInit {
   modalMode = signal<'create' | 'edit'>('create');
   editingCarId = signal<string | null>(null);
 
+  private formatLicensePlate(value: string): string {
+    return value
+      .trim()
+      .toUpperCase()
+      .replace(/^([0-9]{4}) ?([BCDFGHJKLMNPRSTVWXYZ]{3})$/, '$1 $2');
+  }
   
   ngOnInit(): void {
   this.loadBrands();
@@ -267,6 +290,8 @@ export class CatalogueComponent implements OnInit {
   }
 
   onNewCarBrandChange(brandId: string): void {
+    this.modelsSubscription?.unsubscribe();
+
     this.newCarBrandId.set(brandId);
     this.newCarModelId.set('');    
     this.models.set([]);          
@@ -275,7 +300,11 @@ export class CatalogueComponent implements OnInit {
       return;
     }
 
-    this.brandService.getBrandModels(brandId).subscribe({
+    this.loadingService.start();
+
+    this.brandService.getBrandModels(brandId).pipe(
+    finalize(() => this.loadingService.stop())
+    ).subscribe({
       next: (models) => 
         this.models.set(models),
       error: (e: AppError)  => {
@@ -306,7 +335,6 @@ export class CatalogueComponent implements OnInit {
 
   openCreateModal(): void {
     this.carSubmitted.set(false);
-
     this.modalMode.set('create');
     this.editingCarId.set(null);
     this.newCarBrandId.set('');
@@ -320,10 +348,7 @@ export class CatalogueComponent implements OnInit {
     this.newCarColor.set('');
     this.newCarDescription.set('');
     this.newCarLicensePlate.set('');
-
     this.createError.set(null);
-    this.loadingService.stop();
-
     this.createModalOpen.set(true);
   }
 
@@ -386,6 +411,7 @@ export class CatalogueComponent implements OnInit {
   });
   }
   closeCreateModal(): void {
+    this.modelsSubscription?.unsubscribe();
     this.carSubmitted.set(false);
     this.createModalOpen.set(false);
   }
@@ -406,7 +432,7 @@ export class CatalogueComponent implements OnInit {
         {
           availability: this.newCarAvailability(),
           currency: this.newCarCurrency(),
-          licensePlate: this.newCarLicensePlate(),
+          licensePlate: this.formatLicensePlate(this.newCarLicensePlate()),
           manufactureYear: this.newCarManufactureYear() ?? 0,
           mileage: this.newCarMileage() ?? 0,
           price: this.newCarPrice() ?? 0,
@@ -452,7 +478,7 @@ export class CatalogueComponent implements OnInit {
         {
           availability: this.newCarAvailability(),
           currency: this.newCarCurrency(),
-          licensePlate: this.newCarLicensePlate(),
+          licensePlate: this.formatLicensePlate(this.newCarLicensePlate()),
           manufactureYear: this.newCarManufactureYear() ?? 0,
           mileage: this.newCarMileage() ?? 0,
           price: this.newCarPrice() ?? 0,
