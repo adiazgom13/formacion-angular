@@ -359,7 +359,7 @@ export class CarComponent implements OnInit {
     formData.append('description', this.docDescription().trim());
     formData.append('file', file, file.name);
 
-    console.log("doc:", formData)
+    //console.log("doc:", formData)
     this.carsService.PostCarDocument(carId, formData).subscribe({
       next: (createdDoc) => {
         this.docUploadLoading.set(false);

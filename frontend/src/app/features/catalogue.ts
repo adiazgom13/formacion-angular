@@ -312,12 +312,12 @@ export class CatalogueComponent implements OnInit {
         this.error.set(e.userMessage);
       },
     });
-    console.log("brand models:",this.models)
+    //console.log("brand models:",this.models)
   }
   onFilterBrandChange(brandId?: string): void {
     this.filterBrandId.set(brandId);
     this.filterModelId.set(undefined);
-    console.log(brandId);
+    //console.log(brandId);
 
     if (!brandId) {
       this.filterModels.set([]);
@@ -330,7 +330,7 @@ export class CatalogueComponent implements OnInit {
         this.filterModels.set([]);
       }
     });
-    console.log(this.filterModels());
+    //console.log(this.filterModels());
   }
 
   openCreateModal(): void {
