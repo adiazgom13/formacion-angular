@@ -285,6 +285,7 @@ export class CarComponent implements OnInit {
   }
 
   openAttachDocumentPanel(): void {
+    if (!this.isAdmin()) return;
     const carId = this.car()?.id ?? '';
     if (!carId) {
       this.toastService.show('No se pudo determinar el id del coche.', 'error');
@@ -328,6 +329,7 @@ export class CarComponent implements OnInit {
   }
 
   uploadDocument(): void {
+    if (!this.isAdmin()) return;
     const carId = this.car()?.id ?? '';
     if (!carId) {
       this.docUploadError.set('No se pudo determinar el id del coche.');
