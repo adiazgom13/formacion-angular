@@ -294,10 +294,11 @@
             >
               {{ viewDocumentLoading() ? 'Cargando...' : 'Ver Documento' }}
             </button>
-
-            <button type="button" class="btn btn-secondary" (click)="openAttachDocumentPanel()">
-              Adjuntar documento
-            </button>
+            @if (isAdmin()) {
+              <button type="button" class="btn btn-secondary" (click)="openAttachDocumentPanel()">
+                Adjuntar documento
+              </button>
+            }
 
             @if (isAdmin()) {
               <button type="button" class="btn btn-danger" (click)="openDeleteModal()">
